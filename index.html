@@ -38,7 +38,18 @@ button{border:0;border-radius:9px;padding:12px 16px;font-weight:800;color:#fff;c
 .badge{display:inline-block;padding:5px 8px;border-radius:20px;background:#261015;border:1px solid #5b2930;color:#ffafb4;font-size:11px}
 label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
 .info{font-size:11px;color:#8e7e81;line-height:1.5;margin-top:15px}
-@media(max-width:800px){.input-grid,.lower{grid-template-columns:1fr}.logo{font-size:32px}.url-row{flex-direction:column}}
+#mobilePasteHelp{display:none}
+.mobile-actions{display:none;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mobile-actions button{flex:1;min-width:140px}
+@media(max-width:800px){
+.input-grid,.lower{grid-template-columns:1fr}
+.logo{font-size:32px}
+.url-row{flex-direction:column}
+#desktopPasteHelp{display:none}
+#mobilePasteHelp{display:inline}
+.mobile-actions{display:flex}
+.input-box{min-height:190px}
+}
 </style>
 </head>
 <body>
@@ -62,12 +73,22 @@ label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
     <div>
       <div class="input-icon">📋</div>
       <div class="input-title">PASTE IMAGE HERE</div>
-      <div class="input-help"><b>Ctrl + V</b> untuk menempel screenshot<br>Gambar dari clipboard akan diproses otomatis</div>
+      <div class="input-help">
+        <span id="desktopPasteHelp"><b>Ctrl + V</b> untuk menempel screenshot<br>Gambar dari clipboard akan diproses otomatis</span>
+        <span id="mobilePasteHelp">📱 HP: tap di sini untuk memilih gambar dari galeri</span>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="mobile-actions">
+  <button id="galleryBtn" class="primary" type="button">🖼️ PILIH DARI GALERI</button>
+  <button id="cameraBtn" class="secondary" type="button">📷 AMBIL FOTO</button>
+</div>
+
 <input id="fileInput" class="file-input" type="file" accept="image/*">
+<input id="mobileGalleryInput" class="file-input" type="file" accept="image/*">
+<input id="cameraInput" class="file-input" type="file" accept="image/*" capture="environment">
 
 <div id="preview" class="preview">
   <div class="preview-title">🖼️ PREVIEW</div>
@@ -135,6 +156,10 @@ var $=function(id){return document.getElementById(id);};
 var uploadBox=$("uploadBox");
 var pasteBox=$("pasteBox");
 var fileInput=$("fileInput");
+var mobileGalleryInput=$("mobileGalleryInput");
+var cameraInput=$("cameraInput");
+var galleryBtn=$("galleryBtn");
+var cameraBtn=$("cameraBtn");
 var preview=$("preview");
 var previewImg=$("previewImg");
 var status=$("status");
@@ -165,11 +190,38 @@ uploadBox.addEventListener("click",chooseFile);
 uploadBox.addEventListener("keydown",function(e){
   if(e.key==="Enter"||e.key===" ") chooseFile();
 });
+function isMobileDevice(){
+  return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+}
+function openGallery(){ mobileGalleryInput.click(); }
+function openCamera(){ cameraInput.click(); }
+
 pasteBox.addEventListener("click",function(){
-  setStatus("📋 Klik kotak ini lalu tekan Ctrl + V.");
+  if(isMobileDevice()){
+    setStatus("🖼️ Silakan pilih gambar dari galeri.");
+    openGallery();
+  }else{
+    setStatus("📋 Klik kotak ini lalu tekan Ctrl + V.");
+  }
 });
 pasteBox.addEventListener("keydown",function(e){
-  if(e.key==="Enter"||e.key===" ") setStatus("📋 Sekarang tekan Ctrl + V.");
+  if(e.key==="Enter"||e.key===" "){
+    e.preventDefault();
+    if(isMobileDevice()){
+      setStatus("🖼️ Silakan pilih gambar dari galeri.");
+      openGallery();
+    }else{
+      setStatus("📋 Sekarang tekan Ctrl + V.");
+    }
+  }
+});
+galleryBtn.addEventListener("click",openGallery);
+cameraBtn.addEventListener("click",openCamera);
+mobileGalleryInput.addEventListener("change",function(){
+  if(mobileGalleryInput.files&&mobileGalleryInput.files[0]) prepare(mobileGalleryInput.files[0]);
+});
+cameraInput.addEventListener("change",function(){
+  if(cameraInput.files&&cameraInput.files[0]) prepare(cameraInput.files[0]);
 });
 
 fileInput.addEventListener("change",function(){
@@ -345,6 +397,8 @@ $("clearBtn").addEventListener("click",function(){
   previewImg.removeAttribute("src");
   urlInput.value="";
   fileInput.value="";
+  mobileGalleryInput.value="";
+  cameraInput.value="";
   if(objectUrl)URL.revokeObjectURL(objectUrl);
   objectUrl=null;
   setStatus("Pilih gambar atau tekan Ctrl + V.");
