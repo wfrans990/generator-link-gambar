@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMAGE LINK GENERATOR</title>
+<style>
+:root{--bg:#080305;--panel:#16090b;--panel2:#1d0c0f;--line:#54252c;--red:#d92835;--red2:#ff5963;--text:#fff;--muted:#a99598;--green:#35d88a}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 50% -10%,#55151c 0,#19080b 36%,#050204 76%)}
+.container{max-width:1150px;margin:auto;padding:28px 18px 50px}
+header{text-align:center;margin-bottom:25px}
+.logo{font-size:40px;font-weight:900;letter-spacing:3px}.logo span{color:var(--red2)}
+.subtitle{color:var(--muted);margin:8px 0 0}
+.card{background:rgba(22,9,11,.96);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 20px 70px #0008}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.input-box{min-height:245px;border:2px dashed #71343b;border-radius:15px;background:#100608;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:.2s}
+.input-box:hover,.input-box.active{border-color:var(--red2);background:#22090d;transform:translateY(-2px)}
+.input-icon{font-size:45px;margin-bottom:8px}.input-title{font-size:21px;font-weight:800}.input-help{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.file-input{display:none}
+.preview{display:none;margin-top:18px}
+.preview-title{font-size:13px;font-weight:bold;margin-bottom:9px;color:#e6cdd0}
+.preview img{display:block;width:100%;max-height:500px;object-fit:contain;background:#050303;border:1px solid #422027;border-radius:12px}
+.status{margin-top:15px;padding:12px 14px;background:#0e0708;border:1px solid #3a1b20;border-radius:9px;font-size:13px;color:#ddd}
+.status.ok{border-color:#1c6847;color:#9ff0c7}.status.err{border-color:#702a32;color:#ff9da5}
+.result{display:none;margin-top:15px}
+.label{display:block;font-size:11px;color:#ad989b;margin:0 0 7px}
+.url-row{display:flex;gap:8px}.url-row input{flex:1;min-width:0}
+input,select{background:#090405;color:#fff;border:1px solid #51262c;border-radius:9px;padding:12px;outline:none;width:100%}
+input:focus,select:focus{border-color:var(--red2)}
+button{border:0;border-radius:9px;padding:12px 16px;font-weight:800;color:#fff;cursor:pointer}
+.primary{background:linear-gradient(135deg,#b71f2b,#ec3e49)}.secondary{background:#261014;border:1px solid #623039}.danger{background:#361015;border:1px solid #71313a}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.lower{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;margin-top:16px}
+.history h3,.settings h3{margin-top:0}.history-item{display:flex;gap:10px;align-items:center;border-top:1px solid #32171b;padding:10px 0}
+.thumb{width:64px;height:48px;object-fit:cover;border-radius:7px;background:#080404}
+.history-link{color:#ffabb0;font-size:12px;text-decoration:none;word-break:break-all}.history-meta{font-size:11px;color:#8e7e81;margin-top:4px}
+.badge{display:inline-block;padding:5px 8px;border-radius:20px;background:#261015;border:1px solid #5b2930;color:#ffafb4;font-size:11px}
+label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
+.info{font-size:11px;color:#8e7e81;line-height:1.5;margin-top:15px}
+@media(max-width:800px){.input-grid,.lower{grid-template-columns:1fr}.logo{font-size:32px}.url-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="logo">IMAGE<span> LINK</span> GENERATOR</div>
+<div class="subtitle">Upload gambar atau Paste Image — lalu dapatkan direct link</div>
+</header>
+
+<div class="card">
+<div class="input-grid">
+  <div id="uploadBox" class="input-box" tabindex="0">
+    <div>
+      <div class="input-icon">📤</div>
+      <div class="input-title">UPLOAD IMAGE</div>
+      <div class="input-help">Klik di sini untuk memilih gambar<br>JPG • PNG • GIF • WEBP</div>
+    </div>
+  </div>
+
+  <div id="pasteBox" class="input-box" tabindex="0">
+    <div>
+      <div class="input-icon">📋</div>
+      <div class="input-title">PASTE IMAGE HERE</div>
+      <div class="input-help"><b>Ctrl + V</b> untuk menempel screenshot<br>Gambar dari clipboard akan diproses otomatis</div>
+    </div>
+  </div>
+</div>
+
+<input id="fileInput" class="file-input" type="file" accept="image/*">
+
+<div id="preview" class="preview">
+  <div class="preview-title">🖼️ PREVIEW</div>
+  <img id="previewImg" alt="Preview gambar">
+</div>
+
+<div id="status" class="status">Pilih gambar atau tekan Ctrl + V.</div>
+
+<div id="result" class="result">
+  <label class="label" for="urlInput">DIRECT IMAGE LINK</label>
+  <div class="url-row">
+    <input id="urlInput" type="text" readonly>
+    <button id="copyBtn" class="primary" type="button">COPY LINK</button>
+  </div>
+  <div class="actions">
+    <button id="openBtn" class="secondary" type="button">↗ OPEN</button>
+    <button id="htmlBtn" class="secondary" type="button">COPY HTML</button>
+    <button id="markdownBtn" class="secondary" type="button">COPY MARKDOWN</button>
+    <button id="clearBtn" class="danger" type="button">CLEAR</button>
+  </div>
+</div>
+</div>
+
+<div class="lower">
+<div class="card history">
+<h3>📜 Riwayat</h3>
+<div id="historyList"><div style="color:#8e7e81;font-size:12px">Belum ada upload.</div></div>
+</div>
+
+<div class="card settings">
+<h3>⚙️ Upload Settings</h3>
+<span class="badge">ImgBB</span>
+<label for="apiKey">ImgBB API Key</label>
+<input id="apiKey" type="password" autocomplete="off" placeholder="Masukkan API key">
+
+<div class="actions">
+<button id="saveKey" class="primary" type="button">SIMPAN</button>
+<button id="showKey" class="secondary" type="button">LIHAT</button>
+</div>
+
+<label for="expiration">Expiration</label>
+<select id="expiration">
+<option value="0">Tidak otomatis dihapus</option>
+<option value="600">10 menit</option>
+<option value="3600">1 jam</option>
+<option value="86400">1 hari</option>
+<option value="604800">7 hari</option>
+<option value="2592000">30 hari</option>
+</select>
+
+<div class="info">
+API key disimpan di browser ini. Untuk penggunaan publik/ramai, lebih aman memakai backend agar API key tidak terekspos di browser.
+</div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var API="https://api.imgbb.com/1/upload";
+var $=function(id){return document.getElementById(id);};
+
+var uploadBox=$("uploadBox");
+var pasteBox=$("pasteBox");
+var fileInput=$("fileInput");
+var preview=$("preview");
+var previewImg=$("previewImg");
+var status=$("status");
+var result=$("result");
+var urlInput=$("urlInput");
+var apiKey=$("apiKey");
+var expiration=$("expiration");
+var historyList=$("historyList");
+var objectUrl=null;
+
+apiKey.value=localStorage.getItem("imgbb_api_key")||"";
+expiration.value=localStorage.getItem("imgbb_expiration")||"0";
+
+function setStatus(text,type){
+  status.className="status"+(type?" "+type:"");
+  status.textContent=text;
+}
+
+function getKey(){
+  return apiKey.value.trim()||localStorage.getItem("imgbb_api_key")||"";
+}
+
+function chooseFile(){
+  fileInput.click();
+}
+
+uploadBox.addEventListener("click",chooseFile);
+uploadBox.addEventListener("keydown",function(e){
+  if(e.key==="Enter"||e.key===" ") chooseFile();
+});
+pasteBox.addEventListener("click",function(){
+  setStatus("📋 Klik kotak ini lalu tekan Ctrl + V.");
+});
+pasteBox.addEventListener("keydown",function(e){
+  if(e.key==="Enter"||e.key===" ") setStatus("📋 Sekarang tekan Ctrl + V.");
+});
+
+fileInput.addEventListener("change",function(){
+  if(fileInput.files&&fileInput.files[0]) prepare(fileInput.files[0]);
+});
+
+document.addEventListener("paste",function(e){
+  var items=e.clipboardData&&e.clipboardData.items;
+  if(!items)return;
+
+  for(var i=0;i<items.length;i++){
+    if(items[i].type&&items[i].type.indexOf("image/")===0){
+      e.preventDefault();
+      prepare(items[i].getAsFile());
+      return;
+    }
+  }
+});
+
+["dragenter","dragover"].forEach(function(name){
+  uploadBox.addEventListener(name,function(e){
+    e.preventDefault();uploadBox.classList.add("active");
+  });
+});
+["dragleave","drop"].forEach(function(name){
+  uploadBox.addEventListener(name,function(e){
+    e.preventDefault();uploadBox.classList.remove("active");
+  });
+});
+uploadBox.addEventListener("drop",function(e){
+  var files=e.dataTransfer&&e.dataTransfer.files;
+  if(files&&files[0])prepare(files[0]);
+});
+
+function prepare(file){
+  if(!file||file.type.indexOf("image/")!==0){
+    setStatus("❌ File bukan gambar.","err");return;
+  }
+  if(file.size>32*1024*1024){
+    setStatus("❌ Ukuran gambar lebih dari 32 MB.","err");return;
+  }
+
+  if(objectUrl)URL.revokeObjectURL(objectUrl);
+  objectUrl=URL.createObjectURL(file);
+  previewImg.src=objectUrl;
+  preview.style.display="block";
+  result.style.display="none";
+
+  var size=(file.size/1024/1024).toFixed(2);
+  setStatus("⏳ "+(file.name||"clipboard-image")+" • "+size+" MB • sedang upload...");
+  upload(file);
+}
+
+async function upload(file){
+  var key=getKey();
+
+  if(!key){
+    setStatus("⚠️ Masukkan ImgBB API Key terlebih dahulu.","err");
+    return;
+  }
+
+  var form=new FormData();
+  form.append("image",file);
+
+  var exp=Number(expiration.value||0);
+  var endpoint=API+"?key="+encodeURIComponent(key);
+  if(exp>0)endpoint+="&expiration="+exp;
+
+  try{
+    var response=await fetch(endpoint,{method:"POST",body:form});
+    var data=await response.json();
+
+    if(!response.ok||!data.success||!data.data||!data.data.url){
+      var msg="Upload gagal.";
+      if(data&&data.error&&data.error.message)msg=data.error.message;
+      throw new Error(msg);
+    }
+
+    urlInput.value=data.data.url;
+    result.style.display="block";
+    setStatus("✓ Upload berhasil. Direct link siap digunakan.","ok");
+    addHistory(data.data.url,file.name||"clipboard-image");
+  }catch(err){
+    console.error(err);
+    setStatus("❌ "+err.message,"err");
+  }
+}
+
+async function copyText(text){
+  if(!text){
+    setStatus("Tidak ada link.","err");return;
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    urlInput.focus();
+    urlInput.select();
+    document.execCommand("copy");
+  }
+  setStatus("✓ Berhasil disalin.","ok");
+}
+
+function addHistory(imageUrl,fileName){
+  if(historyList.textContent.indexOf("Belum ada upload.")!==-1){
+    historyList.innerHTML="";
+  }
+
+  var row=document.createElement("div");
+  row.className="history-item";
+
+  var thumb=document.createElement("img");
+  thumb.className="thumb";
+  thumb.src=imageUrl;
+  thumb.alt="thumbnail";
+
+  var box=document.createElement("div");
+
+  var link=document.createElement("a");
+  link.className="history-link";
+  link.href=imageUrl;
+  link.target="_blank";
+  link.rel="noopener noreferrer";
+  link.textContent=imageUrl;
+
+  var meta=document.createElement("div");
+  meta.className="history-meta";
+  meta.textContent=(fileName||"image")+" • "+new Date().toLocaleString("id-ID");
+
+  box.appendChild(link);
+  box.appendChild(meta);
+  row.appendChild(thumb);
+  row.appendChild(box);
+  historyList.prepend(row);
+}
+
+$("saveKey").addEventListener("click",function(){
+  var key=apiKey.value.trim();
+  if(!key){
+    setStatus("Masukkan API Key terlebih dahulu.","err");return;
+  }
+  localStorage.setItem("imgbb_api_key",key);
+  localStorage.setItem("imgbb_expiration",expiration.value);
+  setStatus("✓ Pengaturan tersimpan.","ok");
+});
+
+$("showKey").addEventListener("click",function(){
+  apiKey.type=apiKey.type==="password"?"text":"password";
+});
+
+expiration.addEventListener("change",function(){
+  localStorage.setItem("imgbb_expiration",expiration.value);
+});
+
+$("copyBtn").addEventListener("click",function(){
+  copyText(urlInput.value);
+});
+
+$("openBtn").addEventListener("click",function(){
+  if(urlInput.value)window.open(urlInput.value,"_blank","noopener,noreferrer");
+});
+
+$("htmlBtn").addEventListener("click",function(){
+  copyText('<img src="'+urlInput.value+'" alt="image">');
+});
+
+$("markdownBtn").addEventListener("click",function(){
+  copyText("![]("+urlInput.value+")");
+});
+
+$("clearBtn").addEventListener("click",function(){
+  preview.style.display="none";
+  result.style.display="none";
+  previewImg.removeAttribute("src");
+  urlInput.value="";
+  fileInput.value="";
+  if(objectUrl)URL.revokeObjectURL(objectUrl);
+  objectUrl=null;
+  setStatus("Pilih gambar atau tekan Ctrl + V.");
+});
+})();
+</script>
+</body>
+</html>
