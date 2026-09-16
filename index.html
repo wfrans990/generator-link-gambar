@@ -518,23 +518,27 @@ async function sha256(file){
   return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
 }
 async function compressImage(file){
-  if(!autoCompress || /image\/gif/i.test(file.type)) return file;
-  if(file.size<900*1024 && file.type!=="image/png") return file;
+  if(!autoCompress || /image\/(gif|avif|bmp|tiff)/i.test(file.type)) return file;
+  var SMALL_LIMIT=1024*1024;
+  if(file.size<=SMALL_LIMIT) return file;
   return new Promise(function(resolve){
-    var img=new Image(), url=URL.createObjectURL(file);
+    var img=new Image(), url=URL.createObjectURL(file), settled=false;
+    function finish(result){if(settled)return;settled=true;URL.revokeObjectURL(url);resolve(result||file)}
     img.onload=function(){
-      URL.revokeObjectURL(url);
-      var max=2560, scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      var max=2560, largest=Math.max(img.naturalWidth,img.naturalHeight);
+      var scale=Math.min(1,max/largest);
       var w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+      if(file.size<=2*1024*1024 && scale===1){finish(file);return}
       var c=document.createElement("canvas");c.width=w;c.height=h;
-      var ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);
-      var mime="image/webp";
+      var ctx=c.getContext("2d",{alpha:true});
+      if(!ctx){finish(file);return}
+      ctx.drawImage(img,0,0,w,h);
       c.toBlob(function(blob){
-        if(!blob || blob.size>=file.size*0.96){resolve(file);return}
-        resolve(new File([blob],(file.name||"image").replace(/\.[^.]+$/i,"")+".webp",{type:mime,lastModified:Date.now()}));
-      },mime,.84);
+        if(!blob || blob.size>=file.size*0.96){finish(file);return}
+        finish(new File([blob],(file.name||"image").replace(/\.[^.]+$/i,"")+".webp",{type:"image/webp",lastModified:Date.now()}));
+      },"image/webp",.84);
     };
-    img.onerror=function(){URL.revokeObjectURL(url);resolve(file)};
+    img.onerror=function(){finish(file)};
     img.src=url;
   });
 }
@@ -774,19 +778,16 @@ async function prepare(file){
   var staff=staffName.value.trim();
   if(!staff){setStatus("⚠️ Isi NAMA STAFF terlebih dahulu.","err");staffName.focus();return}
   try{
+    setStatus("🔐 Memeriksa gambar...","");
     var hash=await sha256(file);
-    var existing=await getHistory();
-    var dup=existing.find(function(x){return x.fileHash&&x.fileHash===hash});
-    if(dup){
-      if(!confirm("⚠️ GAMBAR INI SUDAH PERNAH DI-UPLOAD.\\n\\nStaff: "+dup.staff+"\\nTanggal: "+formatDateTime(dup.uploadedAt)+"\\n\\nOK = Upload lagi\\nCancel = Batalkan"))return;
-    }
     lastPreparedFile=file;lastPreparedHash=hash;
+    setStatus("⚡ Memproses gambar...","");
     var optimized=await compressImage(file);
     if(objectUrl)URL.revokeObjectURL(objectUrl);
     objectUrl=URL.createObjectURL(optimized);
     previewImg.src=objectUrl;preview.style.display="block";result.style.display="none";validationLink.textContent="";urlInput.value="";
     var before=(file.size/1024/1024).toFixed(2),after=(optimized.size/1024/1024).toFixed(2);
-    setStatus("⏳ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengunggah sebagai "+staff+"...","");
+    setStatus("☁️ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengirim ke server...","");
     upload(optimized,staff,hash);
   }catch(e){console.error(e);setStatus("❌ Gagal menyiapkan gambar: "+e.message,"err")}
 }
@@ -795,22 +796,19 @@ function xhrUpload(file,staff,hash){
   return new Promise(function(resolve,reject){
     var xhr=new XMLHttpRequest();
     xhr.open("POST",UPLOAD_FUNCTION,true);
-    // The publishable key identifies this browser app. Do not send it as Bearer JWT.
     xhr.setRequestHeader("apikey",SUPABASE_PUBLISHABLE_KEY);
     var form=new FormData();
     form.append("image",file,file.name||"image.webp");
     form.append("staff",staff);
     form.append("file_hash",hash);
     form.append("expiration",expiration.value||"0");
-    xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress(e.loaded/e.total*100,"UPLOADING IMAGE...")};
+    xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress((e.loaded/e.total)*88,"☁️ MENGIRIM GAMBAR...")};
     xhr.onload=function(){
       try{
+        setProgress(92,"☁️ SERVER MEMPROSES + MENYIMPAN RIWAYAT...");
         var d=JSON.parse(xhr.responseText||"{}");
         if(xhr.status>=200&&xhr.status<300&&d.url&&d.historySaved!==false)resolve(d);
-        else{
-          var err=new Error(d.error||"Upload gagal ("+xhr.status+")");
-          err.status=xhr.status; err.payload=d; reject(err);
-        }
+        else{var err=new Error(d.error||"Upload gagal ("+xhr.status+")");err.status=xhr.status;err.payload=d;reject(err)}
       }catch(e){reject(e)}
     };
     xhr.onerror=function(){reject(new Error("Koneksi upload gagal."))};
@@ -821,16 +819,23 @@ function xhrUpload(file,staff,hash){
 }
 async function upload(file,staff,hash){
   isUploading=true;document.querySelectorAll(".input-box").forEach(function(x){x.classList.add("disabled")});
-  setProgress(0,"UPLOADING IMAGE...");
+  setProgress(0,"☁️ MENGIRIM GAMBAR...");
   try{
     var data=await xhrUpload(file,staff,hash);
     urlInput.value=data.url;validationLink.textContent=data.url;result.style.display="block";
-    setProgress(100,"UPLOAD + HISTORY COMPLETE");setTimeout(function(){setProgress(-1)},500);
+    setProgress(100,"✓ UPLOAD + HISTORY SELESAI");setTimeout(function(){setProgress(-1)},700);
     setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat cloud sudah dicatat "+staff+".","ok");
     toastMsg("✓ Upload + riwayat berhasil");
-    await renderHistory();
-  }catch(err){console.error(err);setProgress(-1);setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");toastMsg("❌ Upload gagal")}
-  finally{isUploading=false;document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")})}
+    setTimeout(function(){renderHistory()},150);
+  }catch(err){
+    console.error(err);setProgress(-1);
+    if(err.status===409 && err.payload && err.payload.code==="DUPLICATE"){
+      var ex=err.payload.existing||{};
+      var detail=ex.staff_name?"\n\nStaff: "+ex.staff_name+"\nTanggal: "+formatDateTime(ex.uploaded_at):"";
+      setStatus("⚠️ Gambar ini sudah pernah di-upload."+detail+"\n\nUpload dibatalkan untuk mencegah duplicate.","err");
+    }else setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");
+    toastMsg("❌ Upload gagal");
+  }finally{isUploading=false;document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")})}
 }
 
 async function copyText(text){
@@ -996,7 +1001,7 @@ supabaseClient && supabaseClient.auth.onAuthStateChange(function(){
 });
 
 if(cloudEnabled){
-  setStatus("☁️ Mode cloud aktif. Riwayat akan sama di HP dan PC.","ok");
+  setStatus("☁️ Cloud aktif • siap upload cepat.","ok");
   refreshAdminState();
   supabaseClient.channel("image-history-live")
     .on("postgres_changes",{event:"*",schema:"public",table:CLOUD_TABLE},function(){renderHistory()})
