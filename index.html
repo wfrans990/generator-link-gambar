@@ -11,6 +11,7 @@
 <title>GENERATOR LINK GAMBAR VALIDASI</title>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 :root{
   --bg:#030205;
   --panel:rgba(13,8,12,.82);
@@ -31,7 +32,7 @@
 html{scroll-behavior:smooth}
 body{
   margin:0;min-height:100vh;color:var(--white);
-  font-family:Inter,Arial,Helvetica,sans-serif;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   background:
     radial-gradient(circle at 50% -10%,rgba(190,12,30,.42),transparent 30%),
     radial-gradient(circle at 8% 35%,rgba(100,0,18,.20),transparent 28%),
@@ -79,7 +80,7 @@ header{text-align:center;margin-bottom:25px;position:relative}
   -webkit-background-clip:text;background-clip:text;
   animation:shimmer 5s linear infinite;
 }
-.subtitle{color:#bba8ac;margin:10px 0 0;font-size:13px;letter-spacing:.4px}
+.subtitle{color:#bba8ac;margin:10px 0 0;font-size:14px;letter-spacing:.2px;line-height:1.5}
 header:after{
   content:"";display:block;width:min(480px,72vw);height:1px;margin:17px auto 0;
   background:linear-gradient(90deg,transparent,var(--red),transparent);
@@ -104,11 +105,11 @@ header:after{
 }
 .staff-row{display:grid;grid-template-columns:1fr 235px;gap:12px;margin-bottom:17px}
 .field-wrap{min-width:0}
-label{display:block;font-size:11px;color:#c5b1b5;margin:0 0 7px;font-weight:900;letter-spacing:1px}
+label{display:block;font-size:13px;color:#c5b1b5;margin:0 0 7px;font-weight:900;letter-spacing:.7px}
 .required{color:var(--red2)}
 input,select{
   background:rgba(4,3,5,.9);color:#fff;border:1px solid #55262e;border-radius:12px;
-  padding:13px 14px;width:100%;outline:none;min-height:46px;
+  padding:13px 14px;width:100%;outline:none;min-height:48px;font-size:14px;line-height:1.35;
   transition:.2s;box-shadow:inset 0 0 20px rgba(0,0,0,.28)
 }
 input:focus,select:focus{
@@ -140,8 +141,8 @@ input::placeholder{color:#74666a}
   transition:.25s
 }
 .input-box:hover .input-icon{transform:scale(1.13) translateY(-2px)}
-.input-title{font-size:19px;font-weight:950;letter-spacing:.5px}
-.input-help{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55}
+.input-title{font-size:20px;font-weight:950;letter-spacing:.5px}
+.input-help{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55}
 .camera-box{border-color:rgba(255,215,106,.45)}
 .camera-primary{
   border-width:2px;
@@ -152,28 +153,28 @@ input::placeholder{color:#74666a}
 .camera-box:hover{border-color:var(--yellow);background:linear-gradient(145deg,rgba(90,63,8,.25),rgba(20,12,5,.92))}
 .file-input{display:none}
 .preview{display:none;margin-top:18px}
-.preview-title{font-size:12px;font-weight:950;margin-bottom:9px;color:#f1dfe2;letter-spacing:1px}
+.preview-title{font-size:13px;font-weight:950;margin-bottom:9px;color:#f1dfe2;letter-spacing:1px}
 .preview img{
   display:block;width:100%;max-height:500px;object-fit:contain;background:#030203;
   border:1px solid #51262d;border-radius:15px;box-shadow:0 18px 45px rgba(0,0,0,.45)
 }
 .status{
   margin-top:15px;padding:13px 15px;background:rgba(7,4,6,.82);border:1px solid #472027;
-  border-radius:12px;font-size:12px;color:#ddd;line-height:1.5;box-shadow:inset 0 0 25px rgba(0,0,0,.25)
+  border-radius:12px;font-size:14px;color:#ddd;line-height:1.6;box-shadow:inset 0 0 25px rgba(0,0,0,.25)
 }
 .status.ok{border-color:rgba(28,220,137,.42);color:#a7f5d0;box-shadow:0 0 20px rgba(28,220,137,.06)}
 .status.err{border-color:rgba(255,65,78,.55);color:#ffadb4}
 .result{display:none;margin-top:15px;animation:floatIn .3s ease both}
-.label{font-size:10px;color:#ad989b;margin:0 0 7px;letter-spacing:1.3px;font-weight:900}
+.label{font-size:12px;color:#ad989b;margin:0 0 7px;letter-spacing:1.3px;font-weight:900}
 .validation-box{
   background:rgba(4,3,5,.88);border:1px solid rgba(255,65,78,.38);border-radius:12px;
   padding:13px 14px;line-height:1.55;word-break:break-all;
   box-shadow:inset 0 0 25px rgba(255,20,35,.025)
 }
-.validation-title{font-size:12px;font-weight:950;color:#fff;margin-bottom:6px}
-.validation-link{font-size:13px;color:#ffabb0;word-break:break-all}
+.validation-title{font-size:14px;font-weight:950;color:#fff;margin-bottom:6px}
+.validation-link{font-size:14px;line-height:1.55;color:#ffabb0;word-break:break-all}
 button{
-  border-radius:11px;padding:12px 16px;font-weight:950;color:#fff;cursor:pointer;
+  border-radius:11px;padding:12px 16px;font-weight:800;color:#fff;cursor:pointer;font-size:14px;line-height:1.25;
   min-height:44px;transition:.18s;letter-spacing:.3px
 }
 button:hover{filter:brightness(1.12);transform:translateY(-2px)}
@@ -199,9 +200,9 @@ button:active{transform:translateY(0) scale(.99)}
 }
 .history-item:hover{background:rgba(255,30,45,.025)}
 .thumb{width:72px;height:54px;object-fit:cover;border-radius:9px;background:#080404;border:1px solid #452027}
-.history-link{color:#ffabb0;font-size:12px;text-decoration:none;word-break:break-all}
+.history-link{color:#ffabb0;font-size:13px;line-height:1.5;text-decoration:none;word-break:break-all}
 .history-link:hover{text-decoration:underline;color:#fff}
-.history-meta{font-size:10px;color:#8e7e81;margin-top:5px;line-height:1.45}
+.history-meta{font-size:12px;color:#8e7e81;margin-top:5px;line-height:1.45}
 .history-staff{font-weight:900;color:#fff}
 .history-actions{display:flex;gap:5px}
 .select-wrap{
@@ -212,7 +213,7 @@ button:active{transform:translateY(0) scale(.99)}
   accent-color:var(--red2);cursor:pointer;
 }
 .select-wrap input:disabled{cursor:not-allowed;opacity:.45}
-.selection-note{font-size:9px;color:#9e8d90;margin:0 0 8px}
+.selection-note{font-size:12px;color:#9e8d90;margin:0 0 8px}
 .back-top{
   position:fixed;right:18px;bottom:18px;z-index:9997;
   width:46px;height:46px;min-height:46px;padding:0;border-radius:50%;
@@ -223,31 +224,51 @@ button:active{transform:translateY(0) scale(.99)}
 }
 .back-top.show{display:flex}
 
-.mini-btn{padding:8px 10px;min-height:34px;font-size:10px}
+.mini-btn{padding:8px 11px;min-height:36px;font-size:12px}
 .badge{
   display:inline-block;padding:5px 8px;border-radius:20px;background:#261015;
-  border:1px solid #5b2930;color:#ffafb4;font-size:10px
+  border:1px solid #5b2930;color:#ffafb4;font-size:12px
 }
-.info{font-size:10px;color:#8e7e81;line-height:1.5;margin-top:15px}
-.empty{text-align:center;padding:30px 10px;color:#8e7e81;font-size:11px}
-.counter{font-size:10px;color:#8e7e81;margin-left:auto}
+.info{font-size:12px;color:#8e7e81;line-height:1.5;margin-top:15px}
+.empty{text-align:center;padding:30px 10px;color:#8e7e81;font-size:13px;line-height:1.6}
+.counter{font-size:12px;color:#8e7e81;margin-left:auto}
 .loading{opacity:.7;pointer-events:none}
 .divider{height:1px;background:#32171b;margin:16px 0}
-.note{margin-top:10px;padding:10px;border-radius:9px;background:#100a0b;border:1px solid #342024;color:#9e8d90;font-size:10px;line-height:1.5}
+.note{margin-top:10px;padding:10px;border-radius:9px;background:#100a0b;border:1px solid #342024;color:#9e8d90;font-size:12px;line-height:1.55}
 .admin-panel{
   margin-top:0;padding:15px;border-radius:14px;background:linear-gradient(145deg,rgba(36,10,16,.72),rgba(7,4,6,.8));
   border:1px solid rgba(255,50,65,.25);box-shadow:inset 0 0 30px rgba(255,20,35,.025)
 }
-.admin-status{font-size:10px;color:#9e8d90;margin-top:8px;line-height:1.45}
+.admin-status{font-size:12px;color:#9e8d90;margin-top:8px;line-height:1.45}
 .admin-status.ok{color:#9ff0c7}
 .admin-status.err{color:#ff9da5}
 .admin-actions{display:flex;gap:8px;margin-top:9px}
 .admin-actions button{flex:1}
+
+/* READABILITY / ACCESSIBILITY */
+body{
+  font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+h3{font-size:18px;line-height:1.3;letter-spacing:.1px}
+button,input,select{font-family:inherit}
+button{line-height:1.35}
+input::placeholder{opacity:.9}
+@media(max-width:800px){
+  h3{font-size:17px}
+  label{font-size:12px}
+  input,select{font-size:14px}
+  .status{font-size:14px}
+  .history-link{font-size:13px}
+  .history-meta{font-size:12px}
+}
+
 @media(max-width:800px){
   .camera-primary{order:-10;min-height:205px}
   .container{padding:16px 12px 40px}
   .card{padding:15px;border-radius:17px}
-  .input-grid,.lower{grid-template-columns:1fr}
+  .lower{grid-template-columns:1fr}
   .staff-row{grid-template-columns:1fr}
   .input-box{min-height:170px}
   .url-row{flex-direction:column}
@@ -259,27 +280,206 @@ button:active{transform:translateY(0) scale(.99)}
 }
 @media(max-width:430px){
   .brand-logo{width:min(300px,84vw);max-height:100px}
-  .logo{font-size:24px;letter-spacing:1.2px}
-  .subtitle{font-size:11px}
-  .input-title{font-size:16px}
-  .input-help{font-size:11px}
-  .input-box{min-height:150px;padding:14px}
+  .logo{font-size:24px;letter-spacing:1.2px;line-height:1.1}
+  .subtitle{font-size:13px;line-height:1.45}
+  .input-title{font-size:18px}
+  .input-help{font-size:13px;line-height:1.55}
+  .input-box{min-height:150px;padding:16px}
   .input-icon{font-size:34px}
   .actions button{flex:1 1 100%}
 }
 
+
+/* COMPACT UPLOAD UI */
+.input-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.input-box{
+  min-height:158px;
+  border-radius:15px;
+  padding:14px 12px;
+}
+.input-icon{
+  font-size:32px;
+  margin-bottom:7px;
+}
+.input-title{
+  font-size:15px;
+  letter-spacing:.25px;
+  line-height:1.25;
+}
+.input-help{
+  font-size:11px;
+  margin-top:6px;
+  line-height:1.4;
+}
+.input-box:hover,.input-box.active{
+  transform:translateY(-2px) scale(1.004);
+}
+.quick-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.quick-actions button{
+  flex:0 0 auto;
+  min-height:38px;
+  padding:9px 13px;
+  font-size:12px;
+}
+.compress-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.compress-toggle.active{
+  border-color:rgba(53,230,154,.7);
+  color:#baffdf;
+  background:rgba(20,62,45,.42);
+  box-shadow:0 0 0 1px rgba(53,230,154,.08),0 0 18px rgba(53,230,154,.10);
+}
+.compress-toggle.active .compress-state{
+  color:#35e69a;
+  font-weight:900;
+}
+.compress-toggle:not(.active) .compress-state{
+  color:#ffadb4;
+  font-weight:800;
+}
+.feature-bar{
+  gap:6px;
+  margin:9px 0;
+}
+.chip{
+  padding:5px 9px;
+  font-size:10px;
+  line-height:1.2;
+}
+@media(max-width:1050px){
+  .input-grid{grid-template-columns:1fr 1fr}
+  .input-box{min-height:150px}
+}
+@media(max-width:800px){
+  .input-grid{grid-template-columns:1fr 1fr}
+  .input-box{min-height:145px;padding:14px 11px}
+}
+@media(max-width:520px){
+  .input-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .input-box{min-height:132px;padding:12px 9px}
+  .input-icon{font-size:28px;margin-bottom:5px}
+  .input-title{font-size:13px}
+  .input-help{font-size:10.5px;line-height:1.35}
+}
+@media(max-width:430px){
+  .input-grid{grid-template-columns:1fr 1fr}
+  .input-box{min-height:132px;padding:12px 8px}
+  .input-title{font-size:13px}
+  .input-help{font-size:10.5px}
+  .input-icon{font-size:28px}
+}
+
 /* PRO/MAX feature layer */
 .feature-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.chip{padding:7px 10px;border-radius:999px;background:#16090d;border:1px solid #4c2028;color:#d8b8bc;font-size:9px;font-weight:900}
+.chip{padding:7px 11px;border-radius:999px;background:#16090d;border:1px solid #4c2028;color:#d8b8bc;font-size:11px;font-weight:700;line-height:1.3}
 .chip.on{border-color:#32e69a;color:#8df3c7;box-shadow:0 0 18px #32e69a18}
-.progress-wrap{display:none;margin-top:12px}
-.progress-top{display:flex;justify-content:space-between;font-size:10px;color:#bcaeb0;margin-bottom:6px}
-.progress-track{height:7px;background:#1a080c;border:1px solid #4a2028;border-radius:999px;overflow:hidden}
-.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#9b0718,#ff5260,#fff,#ff5260);background-size:250% 100%;box-shadow:0 0 18px #ff263a88;transition:width .15s}
+.progress-wrap{
+  display:none;
+  margin-top:14px;
+  margin-bottom:12px;
+  padding:12px 13px;
+  border:1px solid rgba(255,65,78,.24);
+  border-radius:13px;
+  background:linear-gradient(145deg,rgba(30,8,13,.78),rgba(7,4,6,.82));
+  box-shadow:inset 0 0 24px rgba(255,20,35,.025);
+}
+.progress-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size:11px;
+  color:#bcaeb0;
+  margin-bottom:8px;
+  font-weight:800;
+}
+.progress-label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.progress-label:before{
+  content:"";
+  width:7px;height:7px;border-radius:50%;
+  background:#ff5260;
+  box-shadow:0 0 12px rgba(255,82,96,.8);
+  flex:0 0 auto;
+  animation:progressDot 1s ease-in-out infinite;
+}
+@keyframes progressDot{0%,100%{opacity:.45;transform:scale(.82)}50%{opacity:1;transform:scale(1)}}
+.progress-pct{
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.progress-track{
+  position:relative;
+  height:9px;
+  background:#16070b;
+  border:1px solid #4a2028;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress-bar{
+  position:relative;
+  height:100%;
+  width:0;
+  background:#ed1c2e;
+  box-shadow:0 0 15px rgba(255,38,58,.48);
+  transition:background-color .22s linear,box-shadow .22s linear;
+}
+.progress-bar:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.20),rgba(255,255,255,0));
+  transform:translateX(-100%);
+  animation:progressSweep 1.8s linear infinite;
+}
+@keyframes progressSweep{to{transform:translateX(100%)}}
+.progress-bar.green-ready{
+  box-shadow:0 0 18px rgba(53,230,154,.48);
+}
+.progress-bar:after{
+  content:"";
+  position:absolute;
+  top:0;bottom:0;
+  width:90px;
+  right:-90px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);
+  animation:progressShine 1.5s linear infinite;
+}
+@keyframes progressShine{from{transform:translateX(-100px)}to{transform:translateX(100px)}}
+.progress-steps{
+  display:flex;
+  justify-content:space-between;
+  gap:5px;
+  margin-top:8px;
+  font-size:9px;
+  color:#76666a;
+  letter-spacing:.2px;
+}
+.progress-step{white-space:nowrap}
+.progress-step.active{color:#ffb1b7;font-weight:900}
+.progress-step.done{color:#8fe9c2}
 .quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .quick-actions button{flex:1}
 .filter-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.filter-grid input,.filter-grid select{min-height:40px;padding:9px 10px;font-size:11px}
+.filter-grid input,.filter-grid select{min-height:44px;padding:9px 11px;font-size:13px}
 .date-range{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .delete-menu{display:none;position:fixed;inset:0;background:#000b;backdrop-filter:blur(10px);z-index:9998;align-items:center;justify-content:center;padding:18px}
 .delete-menu.show{display:flex}
@@ -287,11 +487,24 @@ button:active{transform:translateY(0) scale(.99)}
 .delete-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}
 .delete-option{text-align:left;padding:13px;border:1px solid #4b2028;background:#17080d;border-radius:12px;color:#fff}
 .delete-option:hover{border-color:#ff5260}
-.delete-option b{display:block;font-size:12px}.delete-option span{display:block;color:#9e8d90;font-size:9px;margin-top:4px}
-.toast{position:fixed;right:18px;bottom:18px;z-index:10000;display:none;min-width:240px;max-width:calc(100vw - 36px);padding:13px 15px;border-radius:13px;background:#10050a;border:1px solid #6d2935;box-shadow:0 20px 60px #000b;color:#fff;font-size:11px}
+.delete-option b{display:block;font-size:14px;line-height:1.35}.delete-option span{display:block;color:#9e8d90;font-size:12px;line-height:1.45;margin-top:5px}
+.toast{position:fixed;right:18px;bottom:18px;z-index:10000;display:none;min-width:240px;max-width:calc(100vw - 36px);padding:14px 16px;border-radius:13px;background:#10050a;border:1px solid #6d2935;box-shadow:0 20px 60px #000b;color:#fff;font-size:13px;line-height:1.45}
 .toast.show{display:block;animation:floatIn .22s ease}
 .install-btn{display:none}
 @media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}.delete-options{grid-template-columns:1fr}.date-range{grid-template-columns:1fr}}
+
+
+/* FINAL MOBILE UPLOAD GRID OVERRIDE */
+@media(max-width:800px){
+  .input-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){
+  .input-grid{grid-template-columns:1fr 1fr}
+  .input-box{min-height:132px;padding:12px 8px}
+  .input-title{font-size:13px}
+  .input-help{font-size:10.5px;line-height:1.35}
+  .input-icon{font-size:28px}
+}
 
 </style>
 
@@ -304,7 +517,7 @@ button:active{transform:translateY(0) scale(.99)}
 </header>
 
 <div class="card main-card">
-  <div style="font-size:10px;color:#ff858f;letter-spacing:2px;font-weight:950;margin-bottom:14px;">⚡ SECURE IMAGE UPLOAD • LIVE CLOUD HISTORY</div>
+  <div style="font-size:12px;color:#ff858f;letter-spacing:1.3px;font-weight:950;margin-bottom:14px;">⚡ SECURE IMAGE UPLOAD • LIVE CLOUD HISTORY</div>
   <div class="staff-row">
     <div class="field-wrap">
       <label for="staffName">NAMA STAFF <span class="required">*</span></label>
@@ -330,8 +543,7 @@ button:active{transform:translateY(0) scale(.99)}
     <span class="chip">☁️ CLOUD SYNC</span>
   </div>
   <div class="quick-actions">
-    <button id="quickUploadBtn" class="primary" type="button">⚡ QUICK UPLOAD</button>
-    <button id="compressToggle" class="secondary" type="button">AUTO-COMPRESS: ON</button>
+    <button id="compressToggle" class="secondary compress-toggle active" type="button" aria-pressed="true">⚡ AUTO-COMPRESS <span class="compress-state">AKTIF</span></button>
   </div>
 
   <div class="input-grid">
@@ -371,15 +583,26 @@ button:active{transform:translateY(0) scale(.99)}
   <input id="fileInput" class="file-input" type="file" accept="image/*">
   <input id="cameraInput" class="file-input" type="file" accept="image/*" capture="environment">
 
+  <div id="uploadProgress" class="progress-wrap" aria-live="polite">
+    <div class="progress-top">
+      <span id="progressLabel" class="progress-label">Menyiapkan upload...</span>
+      <span id="progressPct" class="progress-pct">0%</span>
+    </div>
+    <div class="progress-track" aria-hidden="true">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <div class="progress-steps" aria-hidden="true">
+      <span id="stepPrepare" class="progress-step active">PROSES</span>
+      <span id="stepUpload" class="progress-step">UPLOAD</span>
+      <span id="stepServer" class="progress-step">SERVER</span>
+      <span id="stepDone" class="progress-step">SELESAI</span>
+    </div>
+  </div>
   <div id="preview" class="preview">
     <div class="preview-title">🖼️ PREVIEW</div>
     <img id="previewImg" alt="Preview gambar">
   </div>
 
-  <div id="uploadProgress" class="progress-wrap">
-    <div class="progress-top"><span id="progressLabel">UPLOADING...</span><span id="progressPct">0%</span></div>
-    <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
-  </div>
   <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste.</div>
 
   <div id="result" class="result">
@@ -475,9 +698,10 @@ var historyList=$("historyList"), historySearch=$("historySearch"), historyCount
 var staffFilter=$("staffFilter"),dateFilter=$("dateFilter"),fileFilter=$("fileFilter"),dateRange=$("dateRange"),dateFrom=$("dateFrom"),dateTo=$("dateTo");
 var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn");
 var deleteDataBtn=$("deleteDataBtn"),deleteMenu=$("deleteMenu"),deleteClose=$("deleteClose"),toast=$("toast");
-var quickUploadBtn=$("quickUploadBtn"),compressToggle=$("compressToggle"),compressChip=$("compressChip");
+var compressToggle=$("compressToggle"),compressChip=$("compressChip");
 var uploadProgress=$("uploadProgress"),progressBar=$("progressBar"),progressPct=$("progressPct"),progressLabel=$("progressLabel");
 var installBtn=$("installBtn"),backTopBtn=$("backTopBtn"),selectionNote=$("selectionNote"),isAdmin=false,objectUrl=null,isUploading=false,autoCompress=true,deferredInstallPrompt=null,lastPreparedFile=null,lastPreparedHash=null,selectedIds=new Set();
+var progressTimer=null,progressValue=0,progressTarget=0,progressStage="prepare",progressLastTime=0;
 
 /* SUPABASE CLOUD HISTORY CONFIG */
 var SUPABASE_URL="https://yccppelfuigthwhwonjl.supabase.co";
@@ -507,12 +731,134 @@ function toastMsg(msg){
   toast.textContent=msg; toast.classList.add("show");
   clearTimeout(toastMsg.t); toastMsg.t=setTimeout(function(){toast.classList.remove("show")},2600);
 }
-function setProgress(p,label){
-  uploadProgress.style.display=p>=0&&p<100?"block":"none";
-  progressBar.style.width=Math.max(0,Math.min(100,p))+"%";
-  progressPct.textContent=Math.round(p)+"%";
-  progressLabel.textContent=label||"UPLOADING...";
+function setProgress(p,label,stage){
+  var visible=p>=0&&p<100;
+  uploadProgress.style.display=visible?"block":"none";
+  var safe=Math.max(0,Math.min(100,p));
+  progressValue=safe;
+  progressStage=stage||progressStage||"prepare";
+  progressBar.style.width=safe+"%";
+  progressPct.textContent=Math.round(safe)+"%";
+  progressLabel.textContent=label||"Memproses...";
+
+  /* Warna berjalan halus: merah (1%) -> oranye -> kuning -> hijau (100%). */
+  var hue=Math.max(0,Math.min(120,(safe-1)/99*120));
+  progressBar.style.backgroundColor="hsl("+hue+",82%,50%)";
+  progressBar.classList.toggle("green-ready",safe>=88);
+
+  var steps={
+    prepare:$("stepPrepare"),
+    upload:$("stepUpload"),
+    server:$("stepServer"),
+    done:$("stepDone")
+  };
+  Object.keys(steps).forEach(function(k){
+    steps[k].classList.remove("active","done");
+  });
+  var order=["prepare","upload","server","done"];
+  var current=order.indexOf(progressStage);
+  if(current<0)current=0;
+  order.forEach(function(k,i){
+    if(i<current)steps[k].classList.add("done");
+    if(i===current)steps[k].classList.add("active");
+  });
 }
+
+function stopProgressTimer(){
+  if(progressTimer){cancelAnimationFrame(progressTimer);progressTimer=null;}
+}
+
+/*
+  ULTRA SMOOTH PROGRESS
+  - Mulai tepat dari 0%.
+  - Bar bergerak kontinu setiap frame.
+  - Progress network hanya menjadi batas/target, bukan lonjakan angka.
+  - Kecepatan sengaja dibuat konstan dan halus agar 0 -> 100 terasa natural.
+*/
+function startSlowProgress(from,to,label,stage){
+  stopProgressTimer();
+
+  var start=Math.max(0,Math.min(100,Number(from)||0));
+  var target=Math.max(start,Math.min(100,Number(to)||0));
+
+  progressValue=Math.max(0,Math.min(100,Number(progressValue)||start));
+  progressValue=Math.max(progressValue,start);
+  progressTarget=Math.max(progressValue,target);
+  progressStage=stage||progressStage||"prepare";
+  progressLastTime=performance.now();
+
+  setProgress(progressValue,label,progressStage);
+
+  function tick(now){
+    if(!progressTimer)return;
+
+    var elapsed=Math.min(80,Math.max(0,now-progressLastTime));
+    progressLastTime=now;
+
+    if(progressValue<progressTarget){
+      /*
+        Kecepatan virtual:
+        sekitar 1% setiap 125 ms.
+        Karena value memakai desimal, lebar bar bergerak setiap frame,
+        sedangkan angka persen tetap naik 0,1,2,3... tanpa loncat.
+      */
+      var speed=0.008;
+      var distance=progressTarget-progressValue;
+
+      /*
+        Perlambat sedikit ketika mendekati target supaya tidak menabrak
+        target secara tiba-tiba.
+      */
+      if(distance<8) speed=0.0045;
+      if(distance<3) speed=0.0025;
+
+      progressValue=Math.min(progressTarget,progressValue+elapsed*speed);
+      setProgress(progressValue,label,progressStage);
+    }
+
+    progressTimer=requestAnimationFrame(tick);
+  }
+
+  progressTimer=requestAnimationFrame(tick);
+}
+
+/*
+  Penyelesaian 0..100 dibuat berdasarkan posisi aktual saat server selesai.
+  Tidak ada setTimeout yang memaksa angka meloncat ke 100%.
+*/
+function finishProgress(label,onComplete){
+  stopProgressTimer();
+
+  var start=Math.max(0,Math.min(99.2,Number(progressValue)||0));
+  var distance=100-start;
+  var duration=Math.max(2800,Math.min(5200,distance*55));
+  var begin=performance.now();
+
+  progressValue=start;
+  progressTarget=100;
+  progressStage="done";
+  setProgress(start,label,"done");
+
+  function tick(now){
+    var t=Math.min(1,Math.max(0,(now-begin)/duration));
+    var eased=t*t*(3-2*t);
+    progressValue=start+(100-start)*eased;
+
+    if(t>=1){
+      progressValue=100;
+      setProgress(100,label,"done");
+      progressTimer=null;
+      if(typeof onComplete==="function") onComplete();
+      return;
+    }
+
+    setProgress(progressValue,label,"done");
+    progressTimer=requestAnimationFrame(tick);
+  }
+
+  progressTimer=requestAnimationFrame(tick);
+}
+
 async function sha256(file){
   var buf=await file.arrayBuffer(), hash=await crypto.subtle.digest("SHA-256",buf);
   return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
@@ -778,16 +1124,16 @@ async function prepare(file){
   var staff=staffName.value.trim();
   if(!staff){setStatus("⚠️ Isi NAMA STAFF terlebih dahulu.","err");staffName.focus();return}
   try{
-    setStatus("🔐 Memeriksa gambar...","");
+    progressValue=0;progressTarget=0;startSlowProgress(0,8,"🔐 Memeriksa gambar...","prepare");setStatus("🔐 Memeriksa gambar...","");
     var hash=await sha256(file);
     lastPreparedFile=file;lastPreparedHash=hash;
-    setStatus("⚡ Memproses gambar...","");
+    startSlowProgress(Math.max(progressValue,4),10,"⚡ Mengoptimalkan gambar...","prepare");setStatus("⚡ Memproses gambar...","");
     var optimized=await compressImage(file);
     if(objectUrl)URL.revokeObjectURL(objectUrl);
     objectUrl=URL.createObjectURL(optimized);
     previewImg.src=objectUrl;preview.style.display="block";result.style.display="none";validationLink.textContent="";urlInput.value="";
     var before=(file.size/1024/1024).toFixed(2),after=(optimized.size/1024/1024).toFixed(2);
-    setStatus("☁️ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengirim ke server...","");
+    progressTarget=Math.max(progressTarget,10);setProgress(progressValue,"☁️ Gambar siap dikirim...","upload");setStatus("☁️ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengirim ke server...","");
     upload(optimized,staff,hash);
   }catch(e){console.error(e);setStatus("❌ Gagal menyiapkan gambar: "+e.message,"err")}
 }
@@ -802,10 +1148,20 @@ function xhrUpload(file,staff,hash){
     form.append("staff",staff);
     form.append("file_hash",hash);
     form.append("expiration",expiration.value||"0");
-    xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress((e.loaded/e.total)*88,"☁️ MENGIRIM GAMBAR...")};
+    xhr.upload.onprogress=function(e){
+      if(e.lengthComputable){
+        var networkPct=10+(e.loaded/e.total)*84;
+        progressTarget=Math.max(progressTarget,Math.min(97,networkPct));
+        setProgress(progressValue,"☁️ Mengirim gambar...","upload");
+      }
+    };
     xhr.onload=function(){
       try{
-        setProgress(92,"☁️ SERVER MEMPROSES + MENYIMPAN RIWAYAT...");
+        if(xhr.status>=200&&xhr.status<300){
+          startSlowProgress(Math.max(progressValue,97),99.2,"💾 Server memproses + menyimpan riwayat...","server");
+        }else{
+          setProgress(progressValue,"💾 Server memproses...","server");
+        }
         var d=JSON.parse(xhr.responseText||"{}");
         if(xhr.status>=200&&xhr.status<300&&d.url&&d.historySaved!==false)resolve(d);
         else{var err=new Error(d.error||"Upload gagal ("+xhr.status+")");err.status=xhr.status;err.payload=d;reject(err)}
@@ -815,20 +1171,43 @@ function xhrUpload(file,staff,hash){
     xhr.ontimeout=function(){reject(new Error("Upload timeout."))};
     xhr.timeout=120000;
     xhr.send(form);
+    /* Bar terus bergerak perlahan selama request hidup. Progress network
+       nyata hanya menaikkan target agar gerakannya tetap halus. */
+    startSlowProgress(Math.max(progressValue,0),97,"☁️ Mengirim gambar...","upload");
   });
 }
 async function upload(file,staff,hash){
   isUploading=true;document.querySelectorAll(".input-box").forEach(function(x){x.classList.add("disabled")});
-  setProgress(0,"☁️ MENGIRIM GAMBAR...");
+  progressValue=Math.max(0,progressValue);setProgress(progressValue,"🔐 Menyiapkan koneksi upload...","prepare");
   try{
     var data=await xhrUpload(file,staff,hash);
-    urlInput.value=data.url;validationLink.textContent=data.url;result.style.display="block";
-    setProgress(100,"✓ UPLOAD + HISTORY SELESAI");setTimeout(function(){setProgress(-1)},700);
-    setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat cloud sudah dicatat "+staff+".","ok");
-    toastMsg("✓ Upload + riwayat berhasil");
-    setTimeout(function(){renderHistory()},150);
+
+    /*
+      Jangan tampilkan hasil link maupun pesan BERHASIL sebelum progress
+      benar-benar selesai. Keduanya baru muncul setelah progress mencapai 100%.
+    */
+    finishProgress("✓ Menyelesaikan upload + menyimpan riwayat...",function(){
+      urlInput.value=data.url;
+      validationLink.textContent=data.url;
+      result.style.display="block";
+
+      setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat cloud sudah dicatat "+staff+".","ok");
+      toastMsg("✓ Upload + riwayat berhasil");
+
+      setTimeout(function(){
+        renderHistory();
+      },150);
+
+      /*
+        Biarkan 100% terlihat sebentar agar staff benar-benar melihat
+        proses selesai sebelum panel progress disembunyikan.
+      */
+      setTimeout(function(){
+        setProgress(-1);
+      },1800);
+    });
   }catch(err){
-    console.error(err);setProgress(-1);
+    console.error(err);stopProgressTimer();setProgress(-1);
     if(err.status===409 && err.payload && err.payload.code==="DUPLICATE"){
       var ex=err.payload.existing||{};
       var detail=ex.staff_name?"\n\nStaff: "+ex.staff_name+"\nTanggal: "+formatDateTime(ex.uploaded_at):"";
@@ -894,8 +1273,14 @@ historySearch.addEventListener("input",renderHistory);
 staffFilter.addEventListener("change",renderHistory);fileFilter.addEventListener("change",renderHistory);
 dateFilter.addEventListener("change",function(){dateRange.style.display=this.value==="custom"?"grid":"none";renderHistory()});
 dateFrom.addEventListener("change",renderHistory);dateTo.addEventListener("change",renderHistory);
-compressToggle.addEventListener("click",function(){autoCompress=!autoCompress;compressToggle.textContent="AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.classList.toggle("on",autoCompress)});
-quickUploadBtn.addEventListener("click",chooseCamera);
+compressToggle.addEventListener("click",function(){
+  autoCompress=!autoCompress;
+  compressToggle.classList.toggle("active",autoCompress);
+  compressToggle.setAttribute("aria-pressed",String(autoCompress));
+  compressToggle.innerHTML='⚡ AUTO-COMPRESS <span class="compress-state">'+(autoCompress?"AKTIF":"NONAKTIF")+'</span>';
+  compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");
+  compressChip.classList.toggle("on",autoCompress);
+});
 
 async function refreshAdminState(){
   if(!cloudEnabled){
