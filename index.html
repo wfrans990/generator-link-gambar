@@ -290,9 +290,6 @@ button:active{transform:translateY(0) scale(.99)}
 .delete-option b{display:block;font-size:12px}.delete-option span{display:block;color:#9e8d90;font-size:9px;margin-top:4px}
 .toast{position:fixed;right:18px;bottom:18px;z-index:10000;display:none;min-width:240px;max-width:calc(100vw - 36px);padding:13px 15px;border-radius:13px;background:#10050a;border:1px solid #6d2935;box-shadow:0 20px 60px #000b;color:#fff;font-size:11px}
 .toast.show{display:block;animation:floatIn .22s ease}
-.audit-list{max-height:420px;overflow:auto}
-.audit-row{padding:10px 0;border-top:1px solid #32171d;font-size:10px}
-.audit-row b{color:#fff}.audit-row span{color:#938285}
 .install-btn{display:none}
 @media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}.delete-options{grid-template-columns:1fr}.date-range{grid-template-columns:1fr}}
 
@@ -438,9 +435,6 @@ button:active{transform:translateY(0) scale(.99)}
         <button id="adminLoginBtn" class="secondary" type="button">LOGIN ADMIN</button>
         <button id="adminLogoutBtn" class="danger" type="button" style="display:none">LOGOUT</button>
       </div>
-      <div class="divider"></div>
-      <b style="font-size:11px">🛡️ AUDIT LOG</b>
-      <div id="auditList" class="audit-list"><div class="empty">Login admin untuk melihat audit.</div></div>
     </div>
   </div>
 </div>
@@ -479,7 +473,7 @@ var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result
 var urlInput=$("urlInput"), validationLink=$("validationLink"), expiration=$("expiration"), staffName=$("staffName");
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
 var staffFilter=$("staffFilter"),dateFilter=$("dateFilter"),fileFilter=$("fileFilter"),dateRange=$("dateRange"),dateFrom=$("dateFrom"),dateTo=$("dateTo");
-var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn"), auditList=$("auditList");
+var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn");
 var deleteDataBtn=$("deleteDataBtn"),deleteMenu=$("deleteMenu"),deleteClose=$("deleteClose"),toast=$("toast");
 var quickUploadBtn=$("quickUploadBtn"),compressToggle=$("compressToggle"),compressChip=$("compressChip");
 var uploadProgress=$("uploadProgress"),progressBar=$("progressBar"),progressPct=$("progressPct"),progressLabel=$("progressLabel");
@@ -888,7 +882,7 @@ async function deleteRows(ids){
       var r=await supabaseClient.from(CLOUD_TABLE).delete().eq("id",ids[i]);
       if(r.error)throw r.error;
     }
-    selectedIds.clear();deleteMenu.classList.remove("show");await renderHistory();await loadAudit();setStatus("✓ Data berhasil dihapus.","ok");toastMsg("✓ Data dihapus");
+    selectedIds.clear();deleteMenu.classList.remove("show");await renderHistory();setStatus("✓ Data berhasil dihapus.","ok");toastMsg("✓ Data dihapus");
   }catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
 }
 async function deleteByFilter(mode){
@@ -907,7 +901,7 @@ async function deleteByFilter(mode){
     return deleteRows(ids);
   }
   if(!confirm("Hapus "+label+"?\\n\\nTindakan ini permanen."))return;
-  try{var r=await q;if(r.error)throw r.error;selectedIds.clear();deleteMenu.classList.remove("show");await renderHistory();await loadAudit();setStatus("✓ "+label+" berhasil dihapus.","ok");toastMsg("✓ Data berhasil dihapus")}catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
+  try{var r=await q;if(r.error)throw r.error;selectedIds.clear();deleteMenu.classList.remove("show");await renderHistory();setStatus("✓ "+label+" berhasil dihapus.","ok");toastMsg("✓ Data berhasil dihapus")}catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
 }
 deleteDataBtn.addEventListener("click",function(){if(!isAdmin){setStatus("❌ Login ADMIN terlebih dahulu.","err");return}deleteMenu.classList.add("show")});
 deleteClose.addEventListener("click",function(){deleteMenu.classList.remove("show")});
@@ -920,14 +914,6 @@ dateFrom.addEventListener("change",renderHistory);dateTo.addEventListener("chang
 compressToggle.addEventListener("click",function(){autoCompress=!autoCompress;compressToggle.textContent="AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.classList.toggle("on",autoCompress)});
 quickUploadBtn.addEventListener("click",chooseCamera);
 
-async function loadAudit(){
-  if(!isAdmin){auditList.innerHTML='<div class="empty">Login admin untuk melihat audit.</div>';return}
-  try{
-    var r=await supabaseClient.from("image_history_audit").select("id,action,staff_name,file_name,actor_email,created_at").order("created_at",{ascending:false}).limit(50);
-    if(r.error)throw r.error;
-    auditList.innerHTML=(r.data||[]).map(function(x){return '<div class="audit-row"><b>'+escapeHtml(x.action)+'</b> • '+escapeHtml(x.actor_email||"admin")+'<br><span>'+escapeHtml(x.staff_name||"")+" • "+escapeHtml(x.file_name||"")+" • "+formatDateTime(x.created_at)+'</span></div>'}).join("")||'<div class="empty">Belum ada audit.</div>';
-  }catch(e){auditList.innerHTML='<div class="empty">Audit belum tersedia / perlu SQL migration.</div>'}
-}
 
 async function refreshAdminState(){
   if(!cloudEnabled){
@@ -964,7 +950,6 @@ async function refreshAdminState(){
       adminLoginBtn.style.display="none";
       adminLogoutBtn.style.display="";
       deleteDataBtn.style.display="";
-       loadAudit();
       await renderHistory();
     }else{
       adminStatus.className="admin-status err";
