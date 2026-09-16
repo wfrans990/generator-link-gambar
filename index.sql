@@ -1,70 +1,45 @@
--- ============================================================
 -- IMAGE LINK GENERATOR PRO
--- FIX: SECURE ADMIN CHECK WITHOUT EXPOSING ADMIN TABLE
--- ============================================================
--- Jalankan script ini di Supabase SQL Editor.
---
--- Penyebab error sebelumnya:
--- HTML mencoba SELECT langsung ke image_history_admins,
--- sementara akses SELECT memang sudah ditutup.
---
--- Solusi:
--- Browser memanggil function SECURITY DEFINER.
--- Function mengecek UUID login di tabel admin tanpa membuka
--- tabel image_history_admins kepada browser.
--- ============================================================
+-- Migration: server-side history insert + database-level duplicate protection
 
--- 1. Pastikan tabel admin ada
-create table if not exists public.image_history_admins (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now()
-);
+-- 1) Make sure the hash column exists.
+ALTER TABLE public.image_upload_history
+ADD COLUMN IF NOT EXISTS file_hash TEXT;
 
-alter table public.image_history_admins enable row level security;
+-- 2) Inspect duplicate hashes BEFORE creating the unique index.
+-- Run this SELECT first. If it returns rows, keep the newest row and remove/merge
+-- older duplicate records manually before continuing to step 3.
+SELECT file_hash, COUNT(*) AS duplicate_count
+FROM public.image_upload_history
+WHERE file_hash IS NOT NULL
+GROUP BY file_hash
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
 
--- 2. Tutup akses langsung ke tabel admin
-revoke all on table public.image_history_admins from anon, authenticated;
+-- 3) After resolving any duplicate hashes, enforce uniqueness at DB level.
+-- Partial unique index allows legacy rows with NULL file_hash.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_image_upload_history_file_hash
+ON public.image_upload_history(file_hash)
+WHERE file_hash IS NOT NULL;
 
--- 3. Buat function untuk mengecek apakah user login adalah admin
-create or replace function public.is_image_history_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.image_history_admins
-    where user_id = auth.uid()
-  );
-$$;
+-- 4) The browser no longer inserts history directly.
+-- Keep SELECT for cloud history. INSERT can be removed from public roles.
+REVOKE INSERT ON TABLE public.image_upload_history FROM anon, authenticated;
 
--- 4. Browser hanya boleh memanggil function, bukan membaca tabel admin
-revoke all on function public.is_image_history_admin() from public;
-grant execute on function public.is_image_history_admin() to anon, authenticated;
+-- 5) Admin delete policy remains protected by the admin checker.
+ALTER TABLE public.image_upload_history ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow delete image history" ON public.image_upload_history;
+DROP POLICY IF EXISTS "Only admins can delete image history" ON public.image_upload_history;
 
--- 5. Hapus policy DELETE lama yang terlalu terbuka
-drop policy if exists "Allow delete image history"
-on public.image_upload_history;
+CREATE POLICY "Only admins can delete image history"
+ON public.image_upload_history
+FOR DELETE
+TO authenticated
+USING (public.is_image_history_admin());
 
-drop policy if exists "Only admins can delete image history"
-on public.image_upload_history;
+GRANT SELECT ON TABLE public.image_upload_history TO anon, authenticated;
+GRANT DELETE ON TABLE public.image_upload_history TO authenticated;
 
--- 6. Hanya authenticated ADMIN yang boleh DELETE
-create policy "Only admins can delete image history"
-on public.image_upload_history
-for delete
-to authenticated
-using (
-  public.is_image_history_admin()
-);
-
--- 7. Pastikan akses history tetap benar
-grant select, insert on table public.image_upload_history to anon, authenticated;
-grant delete on table public.image_upload_history to authenticated;
-
--- 8. Pastikan realtime aktif
+-- 6) Realtime for live history refresh.
 do $$
 begin
   if not exists (
@@ -74,35 +49,6 @@ begin
       and schemaname = 'public'
       and tablename = 'image_upload_history'
   ) then
-    alter publication supabase_realtime
-      add table public.image_upload_history;
+    alter publication supabase_realtime add table public.image_upload_history;
   end if;
 end $$;
-
--- ============================================================
--- 9. PASTIKAN USER INI TERDAFTAR SEBAGAI ADMIN
--- ============================================================
--- UUID admin yang kamu gunakan:
--- 94c25e42-0c60-42ba-8da8-7537e4d27bd6
---
--- INSERT hanya perlu dijalankan sekali.
--- Jika sudah pernah dimasukkan, jangan ulangi karena PRIMARY KEY.
--- ============================================================
-
-insert into public.image_history_admins (user_id)
-values ('94c25e42-0c60-42ba-8da8-7537e4d27bd6')
-on conflict (user_id) do nothing;
-
--- ============================================================
--- 10. TEST DARI SQL EDITOR
--- ============================================================
--- Query ini dijalankan sebagai database owner/admin, bukan
--- sebagai browser user. Harus menghasilkan true jika UUID
--- admin di atas memang ada.
---
--- select exists (
---   select 1
---   from public.image_history_admins
---   where user_id = '94c25e42-0c60-42ba-8da8-7537e4d27bd6'
--- );
--- ============================================================
