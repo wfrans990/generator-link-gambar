@@ -190,7 +190,7 @@ button:active{transform:translateY(0) scale(.99)}
 .history-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:9px}
 .history-toolbar input{flex:1}
 .history-item{
-  display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:11px;align-items:center;
+  display:grid;grid-template-columns:28px 72px minmax(0,1fr) auto;gap:11px;align-items:center;
   border-top:1px solid rgba(255,50,65,.12);padding:13px 0;transition:.18s
 }
 .history-item:hover{background:rgba(255,30,45,.025)}
@@ -229,9 +229,9 @@ button:active{transform:translateY(0) scale(.99)}
   .input-box{min-height:170px}
   .url-row{flex-direction:column}
   .url-row button{width:100%}
-  .history-item{grid-template-columns:58px minmax(0,1fr);align-items:start}
+  .history-item{grid-template-columns:28px 58px minmax(0,1fr);align-items:start}
   .thumb{width:58px;height:48px}
-  .history-actions{grid-column:2;justify-content:flex-start}
+  .history-actions{grid-column:3;justify-content:flex-start}
   .actions button{flex:1 1 calc(50% - 8px)}
 }
 @media(max-width:430px){
@@ -244,6 +244,35 @@ button:active{transform:translateY(0) scale(.99)}
   .input-icon{font-size:34px}
   .actions button{flex:1 1 100%}
 }
+
+/* PRO/MAX feature layer */
+.feature-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chip{padding:7px 10px;border-radius:999px;background:#16090d;border:1px solid #4c2028;color:#d8b8bc;font-size:9px;font-weight:900}
+.chip.on{border-color:#32e69a;color:#8df3c7;box-shadow:0 0 18px #32e69a18}
+.progress-wrap{display:none;margin-top:12px}
+.progress-top{display:flex;justify-content:space-between;font-size:10px;color:#bcaeb0;margin-bottom:6px}
+.progress-track{height:7px;background:#1a080c;border:1px solid #4a2028;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#9b0718,#ff5260,#fff,#ff5260);background-size:250% 100%;box-shadow:0 0 18px #ff263a88;transition:width .15s}
+.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.quick-actions button{flex:1}
+.filter-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.filter-grid input,.filter-grid select{min-height:40px;padding:9px 10px;font-size:11px}
+.date-range{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.delete-menu{display:none;position:fixed;inset:0;background:#000b;backdrop-filter:blur(10px);z-index:9998;align-items:center;justify-content:center;padding:18px}
+.delete-menu.show{display:flex}
+.delete-card{width:min(560px,100%);background:#10050a;border:1px solid #6b2733;border-radius:20px;padding:20px;box-shadow:0 30px 100px #000}
+.delete-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}
+.delete-option{text-align:left;padding:13px;border:1px solid #4b2028;background:#17080d;border-radius:12px;color:#fff}
+.delete-option:hover{border-color:#ff5260}
+.delete-option b{display:block;font-size:12px}.delete-option span{display:block;color:#9e8d90;font-size:9px;margin-top:4px}
+.toast{position:fixed;right:18px;bottom:18px;z-index:10000;display:none;min-width:240px;max-width:calc(100vw - 36px);padding:13px 15px;border-radius:13px;background:#10050a;border:1px solid #6d2935;box-shadow:0 20px 60px #000b;color:#fff;font-size:11px}
+.toast.show{display:block;animation:floatIn .22s ease}
+.audit-list{max-height:420px;overflow:auto}
+.audit-row{padding:10px 0;border-top:1px solid #32171d;font-size:10px}
+.audit-row b{color:#fff}.audit-row span{color:#938285}
+.install-btn{display:none}
+@media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}.delete-options{grid-template-columns:1fr}.date-range{grid-template-columns:1fr}}
+
 </style>
 
 </head>
@@ -252,8 +281,6 @@ button:active{transform:translateY(0) scale(.99)}
 <header>
   <img class="brand-logo" src="https://raw.githubusercontent.com/wfrans990/generator-link-gambar/main/logo.png" alt="TVTOTO">
   <div class="logo">IMAGE<span> LINK</span> GENERATOR TVTOTO</div>
-  <div class="subtitle">Upload, ambil foto dari kamera, dan simpan riwayat dengan nama staff + tanggal + jam.</div>
-  <div style="margin-top:11px;font-size:10px;letter-spacing:1.5px;color:#ffb1b7;font-weight:900;">● TVTOTO OFFICIAL IMAGE VALIDATION TOOL</div>
 </header>
 
 <div class="card main-card">
@@ -275,6 +302,16 @@ button:active{transform:translateY(0) scale(.99)}
         <option value="2592000">30 hari</option>
       </select>
     </div>
+  </div>
+
+  <div class="feature-bar">
+    <span id="compressChip" class="chip on">⚡ AUTO-COMPRESS: ON</span>
+    <span class="chip">🛡️ ANTI DOUBLE UPLOAD</span>
+    <span class="chip">☁️ CLOUD SYNC</span>
+  </div>
+  <div class="quick-actions">
+    <button id="quickUploadBtn" class="primary" type="button">⚡ QUICK UPLOAD</button>
+    <button id="compressToggle" class="secondary" type="button">AUTO-COMPRESS: ON</button>
   </div>
 
   <div class="input-grid">
@@ -319,6 +356,10 @@ button:active{transform:translateY(0) scale(.99)}
     <img id="previewImg" alt="Preview gambar">
   </div>
 
+  <div id="uploadProgress" class="progress-wrap">
+    <div class="progress-top"><span id="progressLabel">UPLOADING...</span><span id="progressPct">0%</span></div>
+    <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+  </div>
   <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste.</div>
 
   <div id="result" class="result">
@@ -341,9 +382,26 @@ button:active{transform:translateY(0) scale(.99)}
       <h3 style="margin:0">📜 Riwayat Upload</h3>
       <span id="historyCount" class="counter">0 upload</span>
     </div>
-    <div class="history-toolbar">
-      <input id="historySearch" type="search" placeholder="Cari nama staff atau nama file...">
-      <button id="clearHistoryBtn" class="danger" type="button">HAPUS RIWAYAT</button>
+    <div class="filter-grid">
+      <input id="historySearch" type="search" placeholder="🔎 Cari staff / file / link...">
+      <select id="staffFilter"><option value="">SEMUA STAFF</option></select>
+      <select id="dateFilter">
+        <option value="">SEMUA TANGGAL</option>
+        <option value="today">HARI INI</option>
+        <option value="yesterday">KEMARIN</option>
+        <option value="7">7 HARI</option>
+        <option value="30">30 HARI</option>
+        <option value="custom">CUSTOM DATE</option>
+      </select>
+      <select id="fileFilter"><option value="">SEMUA FILE</option></select>
+    </div>
+    <div id="dateRange" class="date-range">
+      <input id="dateFrom" type="date">
+      <input id="dateTo" type="date">
+    </div>
+    <div class="quick-actions">
+      <button id="deleteDataBtn" class="danger" type="button">🗑️ HAPUS DATA</button>
+      <button id="installBtn" class="secondary install-btn" type="button">📱 INSTALL APP</button>
     </div>
     <div id="historyList"><div class="empty">Belum ada upload.</div></div>
   </div>
@@ -356,17 +414,38 @@ button:active{transform:translateY(0) scale(.99)}
         <button id="adminLoginBtn" class="secondary" type="button">LOGIN ADMIN</button>
         <button id="adminLogoutBtn" class="danger" type="button" style="display:none">LOGOUT</button>
       </div>
+      <div class="divider"></div>
+      <b style="font-size:11px">🛡️ AUDIT LOG</b>
+      <div id="auditList" class="audit-list"><div class="empty">Login admin untuk melihat audit.</div></div>
     </div>
   </div>
 </div>
 </div>
+
+
+<div id="deleteMenu" class="delete-menu">
+  <div class="delete-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b style="font-size:18px">🗑️ HAPUS DATA</b><div style="font-size:9px;color:#9e8d90;margin-top:4px">Khusus ADMIN • perubahan bersifat permanen</div></div>
+      <button id="deleteClose" class="secondary" type="button">✕</button>
+    </div>
+    <div class="delete-options">
+      <button class="delete-option" data-delete="selected"><b>Hapus upload ini</b><span>Hapus item yang dipilih di riwayat</span></button>
+      <button class="delete-option" data-delete="staff"><b>Hapus berdasarkan staff</b><span>Mengikuti filter staff saat ini</span></button>
+      <button class="delete-option" data-delete="date"><b>Hapus berdasarkan tanggal</b><span>Mengikuti tanggal / custom date</span></button>
+      <button class="delete-option" data-delete="today"><b>Hapus hari ini</b><span>Semua upload hari ini</span></button>
+      <button class="delete-option" data-delete="7"><b>Hapus 7 hari terakhir</b><span>Data 7 hari terakhir</span></button>
+      <button class="delete-option" data-delete="all"><b>Hapus semua</b><span>Seluruh riwayat cloud</span></button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
 "use strict";
 
-var API="https://api.imgbb.com/1/upload";
 var $=function(id){return document.getElementById(id)};
 
 var uploadBox=$("uploadBox"), cameraBox=$("cameraBox"), pasteBox=$("pasteBox"), dropBox=$("dropBox");
@@ -374,8 +453,12 @@ var fileInput=$("fileInput"), cameraInput=$("cameraInput");
 var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result=$("result");
 var urlInput=$("urlInput"), validationLink=$("validationLink"), expiration=$("expiration"), staffName=$("staffName");
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
-var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn");
-var isAdmin=false, objectUrl=null, isUploading=false;
+var staffFilter=$("staffFilter"),dateFilter=$("dateFilter"),fileFilter=$("fileFilter"),dateRange=$("dateRange"),dateFrom=$("dateFrom"),dateTo=$("dateTo");
+var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn"), auditList=$("auditList");
+var deleteDataBtn=$("deleteDataBtn"),deleteMenu=$("deleteMenu"),deleteClose=$("deleteClose"),toast=$("toast");
+var quickUploadBtn=$("quickUploadBtn"),compressToggle=$("compressToggle"),compressChip=$("compressChip");
+var uploadProgress=$("uploadProgress"),progressBar=$("progressBar"),progressPct=$("progressPct"),progressLabel=$("progressLabel");
+var installBtn=$("installBtn"),isAdmin=false,objectUrl=null,isUploading=false,autoCompress=true,deferredInstallPrompt=null,lastPreparedFile=null,lastPreparedHash=null;
 
 /* SUPABASE CLOUD HISTORY CONFIG */
 var SUPABASE_URL="https://yccppelfuigthwhwonjl.supabase.co";
@@ -383,6 +466,7 @@ var SUPABASE_PUBLISHABLE_KEY="sb_publishable_r_r4KmqgQ56zuz8lAadYLw_sduDjku_";
 var CLOUD_TABLE="image_upload_history";
 var cloudEnabled=!!(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 var supabaseClient=cloudEnabled ? window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY) : null;
+var UPLOAD_FUNCTION=SUPABASE_URL+"/functions/v1/image-upload";
 
 expiration.value=localStorage.getItem("imgbb_expiration")||"0";
 staffName.value=localStorage.getItem("imgbb_staff_name")||"";
@@ -392,12 +476,79 @@ function setStatus(text,type){
   status.textContent=text;
 }
 
-function getKey(){return "637e93ff5911a76a88ac780dbb9f12e3"}
 
 function formatDateTime(iso){
   var d=new Date(iso);
   return d.toLocaleDateString("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"})+
     " • "+d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+
+
+function toastMsg(msg){
+  toast.textContent=msg; toast.classList.add("show");
+  clearTimeout(toastMsg.t); toastMsg.t=setTimeout(function(){toast.classList.remove("show")},2600);
+}
+function setProgress(p,label){
+  uploadProgress.style.display=p>=0&&p<100?"block":"none";
+  progressBar.style.width=Math.max(0,Math.min(100,p))+"%";
+  progressPct.textContent=Math.round(p)+"%";
+  progressLabel.textContent=label||"UPLOADING...";
+}
+async function sha256(file){
+  var buf=await file.arrayBuffer(), hash=await crypto.subtle.digest("SHA-256",buf);
+  return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
+}
+async function compressImage(file){
+  if(!autoCompress || /image\/gif/i.test(file.type)) return file;
+  if(file.size<900*1024 && file.type!=="image/png") return file;
+  return new Promise(function(resolve){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      URL.revokeObjectURL(url);
+      var max=2560, scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      var w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+      var c=document.createElement("canvas");c.width=w;c.height=h;
+      var ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);
+      var mime="image/webp";
+      c.toBlob(function(blob){
+        if(!blob || blob.size>=file.size*0.96){resolve(file);return}
+        resolve(new File([blob],(file.name||"image").replace(/\.[^.]+$/i,"")+".webp",{type:mime,lastModified:Date.now()}));
+      },mime,.84);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);resolve(file)};
+    img.src=url;
+  });
+}
+function dateBounds(mode){
+  var now=new Date(), start=null,end=null;
+  var day=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(mode==="today"){start=day;end=new Date(day);end.setDate(end.getDate()+1)}
+  if(mode==="yesterday"){end=day;start=new Date(day);start.setDate(start.getDate()-1)}
+  if(mode==="7"){end=now;start=new Date(now);start.setDate(start.getDate()-7)}
+  if(mode==="30"){end=now;start=new Date(now);start.setDate(start.getDate()-30)}
+  if(mode==="custom"){
+    if(dateFrom.value)start=new Date(dateFrom.value+"T00:00:00");
+    if(dateTo.value){end=new Date(dateTo.value+"T23:59:59.999")}
+  }
+  return {start:start,end:end};
+}
+function matchesFilters(x){
+  var q=historySearch.value.trim().toLowerCase();
+  if(q && (x.staff+" "+x.fileName+" "+x.url).toLowerCase().indexOf(q)===-1)return false;
+  if(staffFilter.value && x.staff!==staffFilter.value)return false;
+  if(fileFilter.value && (x.fileName||"").toLowerCase().split(".").pop()!==fileFilter.value)return false;
+  var b=dateBounds(dateFilter.value);
+  var t=new Date(x.uploadedAt);
+  if(b.start&&t<b.start)return false;
+  if(b.end&&t>b.end)return false;
+  return true;
+}
+function rebuildFilters(list){
+  var staffs={},types={};list.forEach(function(x){staffs[x.staff]=1;var p=(x.fileName||"").split(".").pop().toLowerCase();if(p)types[p]=1});
+  var sv=staffFilter.value,fv=fileFilter.value;
+  staffFilter.innerHTML='<option value="">SEMUA STAFF</option>'+Object.keys(staffs).sort().map(function(s){return '<option>'+escapeHtml(s)+'</option>'}).join("");
+  fileFilter.innerHTML='<option value="">SEMUA FILE</option>'+Object.keys(types).sort().map(function(t){return '<option value="'+escapeHtml(t)+'">'+escapeHtml(t.toUpperCase())+'</option>'}).join("");
+  staffFilter.value=sv;fileFilter.value=fv;
 }
 
 function normalizeHistoryRow(x){
@@ -411,9 +562,14 @@ function normalizeHistoryRow(x){
 }
 
 async function getHistory(){
-  if(cloudEnabled){
+  
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstallPrompt=e;installBtn.style.display="block"});
+installBtn.addEventListener("click",async function(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installBtn.style.display="none"});
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(e){console.warn("SW",e)})});
+
+if(cloudEnabled){
     var r=await supabaseClient.from(CLOUD_TABLE)
-      .select("id,staff_name,file_name,image_url,uploaded_at")
+      .select("id,staff_name,file_name,image_url,uploaded_at,file_hash")
       .order("uploaded_at",{ascending:false}).limit(500);
     if(r.error) throw r.error;
     return (r.data||[]).map(normalizeHistoryRow);
@@ -431,7 +587,7 @@ async function addCloudHistory(item){
     return;
   }
   var r=await supabaseClient.from(CLOUD_TABLE).insert({
-    staff_name:item.staff,file_name:item.fileName,image_url:item.url,uploaded_at:item.uploadedAt
+    staff_name:item.staff,file_name:item.fileName,image_url:item.url,uploaded_at:item.uploadedAt,file_hash:item.fileHash||null
   });
   if(r.error) throw r.error;
 }
@@ -439,11 +595,10 @@ async function addCloudHistory(item){
 async function renderHistory(){
   historyList.innerHTML='<div class="empty">⏳ Memuat riwayat...</div>';
   try{
-    var list=await getHistory(), q=historySearch.value.trim().toLowerCase();
-    var filtered=list.filter(function(x){
-      return !q || (x.staff+" "+x.fileName+" "+x.url).toLowerCase().indexOf(q)!==-1;
-    });
-    historyCount.textContent=list.length+" upload"+(list.length===1?"":"s");
+    var list=await getHistory();
+    rebuildFilters(list);
+    var filtered=list.filter(matchesFilters);
+    historyCount.textContent=filtered.length+" / "+list.length+" upload"+(list.length===1?"":"s");
     historyList.innerHTML="";
     if(!filtered.length){
       historyList.innerHTML='<div class="empty">'+(list.length?"Tidak ada hasil pencarian.":"Belum ada upload.")+'</div>';
@@ -472,7 +627,7 @@ async function renderHistory(){
       open.type="button"; open.onclick=function(){window.open(item.url,"_blank","noopener,noreferrer")};
       acts.appendChild(copy); acts.appendChild(open);
 
-      row.appendChild(thumb); row.appendChild(box); row.appendChild(acts);
+      row.appendChild(selectWrap); row.appendChild(thumb); row.appendChild(box); row.appendChild(acts);
       historyList.appendChild(row);
     });
   }catch(err){
@@ -539,78 +694,62 @@ staffName.addEventListener("input",function(){
   localStorage.setItem("imgbb_staff_name",staffName.value);
 });
 
-function prepare(file){
+
+async function prepare(file){
   if(isUploading)return;
-  if(!file||!file.type||file.type.indexOf("image/")!==0){
-    setStatus("❌ File bukan gambar.","err"); return;
-  }
-  if(file.size>32*1024*1024){
-    setStatus("❌ Ukuran gambar lebih dari 32 MB.","err"); return;
-  }
-
+  if(!file||!file.type||file.type.indexOf("image/")!==0){setStatus("❌ File bukan gambar.","err");return}
+  if(file.size>32*1024*1024){setStatus("❌ Ukuran gambar lebih dari 32 MB.","err");return}
   var staff=staffName.value.trim();
-  if(!staff){
-    setStatus("⚠️ Isi NAMA STAFF terlebih dahulu agar riwayat mencatat siapa yang upload.","err");
-    staffName.focus(); return;
-  }
-
-  if(objectUrl)URL.revokeObjectURL(objectUrl);
-  objectUrl=URL.createObjectURL(file);
-  previewImg.src=objectUrl;
-  preview.style.display="block";
-  result.style.display="none";
-  validationLink.textContent="";
-  urlInput.value="";
-
-  var size=(file.size/1024/1024).toFixed(2);
-  setStatus("⏳ "+(file.name||"camera-image")+" • "+size+" MB • sedang upload sebagai "+staff+"...","");
-  upload(file,staff);
+  if(!staff){setStatus("⚠️ Isi NAMA STAFF terlebih dahulu.","err");staffName.focus();return}
+  try{
+    var hash=await sha256(file);
+    var existing=await getHistory();
+    var dup=existing.find(function(x){return x.fileHash&&x.fileHash===hash});
+    if(dup){
+      if(!confirm("⚠️ GAMBAR INI SUDAH PERNAH DI-UPLOAD.\\n\\nStaff: "+dup.staff+"\\nTanggal: "+formatDateTime(dup.uploadedAt)+"\\n\\nOK = Upload lagi\\nCancel = Batalkan"))return;
+    }
+    lastPreparedFile=file;lastPreparedHash=hash;
+    var optimized=await compressImage(file);
+    if(objectUrl)URL.revokeObjectURL(objectUrl);
+    objectUrl=URL.createObjectURL(optimized);
+    previewImg.src=objectUrl;preview.style.display="block";result.style.display="none";validationLink.textContent="";urlInput.value="";
+    var before=(file.size/1024/1024).toFixed(2),after=(optimized.size/1024/1024).toFixed(2);
+    setStatus("⏳ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengunggah sebagai "+staff+"...","");
+    upload(optimized,staff,hash);
+  }catch(e){console.error(e);setStatus("❌ Gagal menyiapkan gambar: "+e.message,"err")}
 }
 
-async function upload(file,staff){
-  var key=getKey();
-  if(!key){
-    setStatus("⚠️ Masukkan ImgBB API Key terlebih dahulu.","err"); return;
-  }
-
-  isUploading=true;
-  document.querySelectorAll(".input-box").forEach(function(x){x.classList.add("disabled")});
-
-  var form=new FormData();
-  form.append("image",file);
-  var exp=Number(expiration.value||0);
-  var endpoint=API+"?key="+encodeURIComponent(key);
-  if(exp>0)endpoint+="&expiration="+exp;
-
+function xhrUpload(file,staff,hash){
+  return new Promise(function(resolve,reject){
+    var xhr=new XMLHttpRequest();
+    xhr.open("POST",UPLOAD_FUNCTION,true);
+    xhr.setRequestHeader("Authorization","Bearer "+(supabaseClient&&supabaseClient.auth?((supabaseClient.auth.getSession && "")||""):""));
+    var form=new FormData();
+    form.append("image",file,file.name||"image.webp");form.append("staff",staff);form.append("file_hash",hash);form.append("expiration",expiration.value||"0");
+    /* Supabase Edge Function needs the current access token; fetch it before opening XHR. */
+    supabaseClient.auth.getSession().then(function(sr){
+      var token=sr.data&&sr.data.session&&sr.data.session.access_token;
+      if(token)xhr.setRequestHeader("Authorization","Bearer "+token);
+      xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress(e.loaded/e.total*100,"UPLOADING IMAGE...")};
+      xhr.onload=function(){try{var d=JSON.parse(xhr.responseText||"{}");if(xhr.status>=200&&xhr.status<300&&d.url)resolve(d);else reject(new Error(d.error||"Upload gagal ("+xhr.status+")"))}catch(e){reject(e)}};
+      xhr.onerror=function(){reject(new Error("Koneksi upload gagal."))};
+      xhr.send(form);
+    }).catch(reject);
+  });
+}
+async function upload(file,staff,hash){
+  isUploading=true;document.querySelectorAll(".input-box").forEach(function(x){x.classList.add("disabled")});
+  setProgress(0,"UPLOADING IMAGE...");
   try{
-    var response=await fetch(endpoint,{method:"POST",body:form});
-    var data=await response.json();
-
-    if(!response.ok||!data.success||!data.data||!data.data.url){
-      var msg="Upload gagal.";
-      if(data&&data.error&&data.error.message)msg=data.error.message;
-      throw new Error(msg);
-    }
-
+    var data=await xhrUpload(file,staff,hash);
     var uploadedAt=new Date().toISOString();
-    urlInput.value=data.data.url;
-    validationLink.textContent=data.data.url;
-    result.style.display="block";
-    setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah mencatat "+staff+".","ok");
-
-    var historyItem={
-      id:Date.now().toString(36)+Math.random().toString(36).slice(2),
-      url:data.data.url,fileName:file.name||"camera-image",staff:staff,uploadedAt:uploadedAt
-    };
-    await addCloudHistory(historyItem);
+    urlInput.value=data.url;validationLink.textContent=data.url;result.style.display="block";
+    setProgress(100,"UPLOAD COMPLETE");setTimeout(function(){setProgress(-1)},500);
+    setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah mencatat "+staff+".","ok");toastMsg("✓ Upload berhasil");
+    await addCloudHistory({url:data.url,fileName:file.name||"camera-image",staff:staff,uploadedAt:uploadedAt,fileHash:hash});
     await renderHistory();
-  }catch(err){
-    console.error(err);
-    setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");
-  }finally{
-    isUploading=false;
-    document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")});
-  }
+  }catch(err){console.error(err);setProgress(-1);setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");toastMsg("❌ Upload gagal")}
+  finally{isUploading=false;document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")})}
 }
 
 async function copyText(text){
@@ -633,13 +772,63 @@ $("copyAllBtn").addEventListener("click",function(){
 $("copyLinkBtn").addEventListener("click",function(){copyText(urlInput.value)});
 historySearch.addEventListener("input",renderHistory);
 
+
+async function deleteRows(ids){
+  if(!isAdmin||!ids.length){setStatus("❌ Hanya ADMIN yang boleh menghapus data.","err");return}
+  if(!confirm("Hapus "+ids.length+" upload terpilih?"))return;
+  try{
+    for(var i=0;i<ids.length;i++){
+      var r=await supabaseClient.from(CLOUD_TABLE).delete().eq("id",ids[i]);
+      if(r.error)throw r.error;
+    }
+    await renderHistory();await loadAudit();setStatus("✓ Data berhasil dihapus.","ok");toastMsg("✓ Data dihapus");
+  }catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
+}
+async function deleteByFilter(mode){
+  if(!isAdmin){setStatus("❌ Hanya ADMIN.","err");return}
+  var q=supabaseClient.from(CLOUD_TABLE).delete();
+  var label="";
+  if(mode==="all"){label="SEMUA DATA";q=q.gte("uploaded_at","1900-01-01T00:00:00.000Z")}
+  else if(mode==="today"){var b=dateBounds("today");label="HARI INI";q=q.gte("uploaded_at",b.start.toISOString()).lt("uploaded_at",b.end.toISOString())}
+  else if(mode==="7"){var b=dateBounds("7");label="7 HARI";q=q.gte("uploaded_at",b.start.toISOString()).lte("uploaded_at",b.end.toISOString())}
+  else if(mode==="staff"){if(!staffFilter.value){setStatus("Pilih staff dulu.","err");return}label="STAFF "+staffFilter.value;q=q.eq("staff_name",staffFilter.value)}
+  else if(mode==="date"){var b=dateBounds("custom");if(!b.start||!b.end){setStatus("Pilih tanggal custom.","err");return}label="TANGGAL CUSTOM";q=q.gte("uploaded_at",b.start.toISOString()).lte("uploaded_at",b.end.toISOString())}
+  else {
+    var ids=Array.from(selectedIds);
+    if(!ids.length){setStatus("Centang upload yang ingin dihapus terlebih dahulu.","err");return}
+    label=ids.length+" UPLOAD TERPILIH";
+    return deleteRows(ids);
+  }
+  if(!confirm("Hapus "+label+"?\\n\\nTindakan ini permanen."))return;
+  try{var r=await q;if(r.error)throw r.error;deleteMenu.classList.remove("show");await renderHistory();await loadAudit();setStatus("✓ "+label+" berhasil dihapus.","ok");toastMsg("✓ Data berhasil dihapus")}catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
+}
+deleteDataBtn.addEventListener("click",function(){if(!isAdmin){setStatus("❌ Login ADMIN terlebih dahulu.","err");return}deleteMenu.classList.add("show")});
+deleteClose.addEventListener("click",function(){deleteMenu.classList.remove("show")});
+deleteMenu.addEventListener("click",function(e){if(e.target===deleteMenu)deleteMenu.classList.remove("show")});
+document.querySelectorAll(".delete-option").forEach(function(btn){btn.addEventListener("click",function(){deleteByFilter(btn.dataset.delete)})});
+historySearch.addEventListener("input",renderHistory);
+staffFilter.addEventListener("change",renderHistory);fileFilter.addEventListener("change",renderHistory);
+dateFilter.addEventListener("change",function(){dateRange.style.display=this.value==="custom"?"grid":"none";renderHistory()});
+dateFrom.addEventListener("change",renderHistory);dateTo.addEventListener("change",renderHistory);
+compressToggle.addEventListener("click",function(){autoCompress=!autoCompress;compressToggle.textContent="AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.classList.toggle("on",autoCompress)});
+quickUploadBtn.addEventListener("click",chooseCamera);
+
+async function loadAudit(){
+  if(!isAdmin){auditList.innerHTML='<div class="empty">Login admin untuk melihat audit.</div>';return}
+  try{
+    var r=await supabaseClient.from("image_history_audit").select("id,action,staff_name,file_name,actor_email,created_at").order("created_at",{ascending:false}).limit(50);
+    if(r.error)throw r.error;
+    auditList.innerHTML=(r.data||[]).map(function(x){return '<div class="audit-row"><b>'+escapeHtml(x.action)+'</b> • '+escapeHtml(x.actor_email||"admin")+'<br><span>'+escapeHtml(x.staff_name||"")+" • "+escapeHtml(x.file_name||"")+" • "+formatDateTime(x.created_at)+'</span></div>'}).join("")||'<div class="empty">Belum ada audit.</div>';
+  }catch(e){auditList.innerHTML='<div class="empty">Audit belum tersedia / perlu SQL migration.</div>'}
+}
+
 async function refreshAdminState(){
   if(!cloudEnabled){
     isAdmin=false;
     adminStatus.textContent="Mode cloud tidak aktif.";
     adminLoginBtn.style.display="none";
     adminLogoutBtn.style.display="none";
-    $("clearHistoryBtn").style.display="none";
+    deleteDataBtn.style.display="none";
     return;
   }
   try{
@@ -651,7 +840,7 @@ async function refreshAdminState(){
       adminStatus.textContent="Hapus riwayat hanya tersedia untuk akun admin.";
       adminLoginBtn.style.display="";
       adminLogoutBtn.style.display="none";
-      $("clearHistoryBtn").style.display="none";
+      deleteDataBtn.style.display="none";
       return;
     }
 
@@ -665,13 +854,14 @@ async function refreshAdminState(){
       adminStatus.textContent="✓ Login sebagai ADMIN. Fitur hapus riwayat aktif.";
       adminLoginBtn.style.display="none";
       adminLogoutBtn.style.display="";
-      $("clearHistoryBtn").style.display="";
+      deleteDataBtn.style.display="";
+       loadAudit();
     }else{
       adminStatus.className="admin-status err";
       adminStatus.textContent="Akun login bukan admin.";
       adminLoginBtn.style.display="none";
       adminLogoutBtn.style.display="";
-      $("clearHistoryBtn").style.display="none";
+      deleteDataBtn.style.display="none";
     }
   }catch(err){
     console.error(err);
@@ -680,7 +870,7 @@ async function refreshAdminState(){
     adminStatus.textContent="Gagal memeriksa status admin: "+(err.message||"error");
     adminLoginBtn.style.display="";
     adminLogoutBtn.style.display="none";
-    $("clearHistoryBtn").style.display="none";
+    deleteDataBtn.style.display="none";
   }
 }
 
@@ -722,24 +912,6 @@ supabaseClient && supabaseClient.auth.onAuthStateChange(function(){
   setTimeout(refreshAdminState,0);
 });
 
-$("clearHistoryBtn").addEventListener("click",async function(){
-  if(!isAdmin){
-    setStatus("❌ Hanya ADMIN yang boleh menghapus semua riwayat.","err");
-    return;
-  }
-  if(!confirm("Hapus SEMUA riwayat cloud untuk SEMUA perangkat?\n\nTindakan ini hanya dapat dilakukan admin.")) return;
-  try{
-    var r=await supabaseClient.from(CLOUD_TABLE)
-      .delete()
-      .gte("uploaded_at","1900-01-01T00:00:00.000Z");
-    if(r.error) throw r.error;
-    await renderHistory();
-    setStatus("✓ Semua riwayat cloud berhasil dihapus.","ok");
-  }catch(err){
-    setStatus("❌ Gagal menghapus riwayat: "+(err.message||"Periksa izin Supabase."),"err");
-  }
-});
-
 if(cloudEnabled){
   setStatus("☁️ Mode cloud aktif. Riwayat akan sama di HP dan PC.","ok");
   refreshAdminState();
@@ -747,6 +919,7 @@ if(cloudEnabled){
     .on("postgres_changes",{event:"*",schema:"public",table:CLOUD_TABLE},function(){renderHistory()})
     .subscribe();
 }
+deleteDataBtn.style.display="none";
 renderHistory();
 })();
 </script>
