@@ -1,4 +1,4 @@
-const CACHE = "tvtoto-image-tool-v2026-09-16-01";
+const CACHE = "tvtoto-image-tool-v2026-09-16-02";
 
 const CORE = [
   "./",
