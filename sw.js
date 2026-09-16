@@ -6,9 +6,6 @@ const CORE = [
   "./manifest.webmanifest"
 ];
 
-/* =========================
-   INSTALL
-========================= */
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE)
@@ -17,28 +14,20 @@ self.addEventListener("install", event => {
   );
 });
 
-
-/* =========================
-   ACTIVATE
-========================= */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => {
-        return Promise.all(
+      .then(keys =>
+        Promise.all(
           keys
             .filter(key => key !== CACHE)
             .map(key => caches.delete(key))
-        );
-      })
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
 
-
-/* =========================
-   FETCH
-========================= */
 self.addEventListener("fetch", event => {
 
   const request = event.request;
@@ -47,17 +36,10 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
-  /* Jangan intercept file dari domain lain */
   if (url.origin !== self.location.origin) return;
 
 
-  /*
-    HTML / navigation:
-    NETWORK FIRST
-
-    Jadi ketika online:
-    selalu ambil versi terbaru dari GitHub Pages.
-  */
+  /* HTML → selalu cek versi terbaru */
   if (
     request.mode === "navigate" ||
     request.destination === "document"
@@ -76,9 +58,7 @@ self.addEventListener("fetch", event => {
           const copy = response.clone();
 
           caches.open(CACHE)
-            .then(cache => {
-              cache.put(request, copy);
-            });
+            .then(cache => cache.put(request, copy));
 
         }
 
@@ -86,18 +66,14 @@ self.addEventListener("fetch", event => {
 
       })
 
-      .catch(() => {
-
-        return caches.match(request)
-          .then(cached => {
-
-            return cached ||
-              caches.match("./index.html") ||
-              caches.match("./");
-
-          });
-
-      })
+      .catch(() =>
+        caches.match(request)
+          .then(cached =>
+            cached ||
+            caches.match("./index.html") ||
+            caches.match("./")
+          )
+      )
 
     );
 
@@ -105,12 +81,7 @@ self.addEventListener("fetch", event => {
   }
 
 
-  /*
-    JS / CSS / manifest:
-    NETWORK FIRST
-
-    Ini penting supaya update kode langsung terbaca.
-  */
+  /* JS / CSS / manifest → network first */
   if (
     request.destination === "script" ||
     request.destination === "style" ||
@@ -130,9 +101,7 @@ self.addEventListener("fetch", event => {
           const copy = response.clone();
 
           caches.open(CACHE)
-            .then(cache => {
-              cache.put(request, copy);
-            });
+            .then(cache => cache.put(request, copy));
 
         }
 
@@ -140,11 +109,9 @@ self.addEventListener("fetch", event => {
 
       })
 
-      .catch(() => {
-
-        return caches.match(request);
-
-      })
+      .catch(() =>
+        caches.match(request)
+      )
 
     );
 
@@ -152,38 +119,15 @@ self.addEventListener("fetch", event => {
   }
 
 
-  /*
-    Asset lain:
-    CACHE FIRST
-
-    Misalnya gambar/icon lokal.
-  */
+  /* Asset lain → cache first */
   event.respondWith(
 
     caches.match(request)
       .then(cached => {
 
-        if (cached) {
-          return cached;
-        }
+        if (cached) return cached;
 
-        return fetch(request)
-          .then(response => {
-
-            if (response && response.ok) {
-
-              const copy = response.clone();
-
-              caches.open(CACHE)
-                .then(cache => {
-                  cache.put(request, copy);
-                });
-
-            }
-
-            return response;
-
-          });
+        return fetch(request);
 
       })
 
