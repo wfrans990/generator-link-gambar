@@ -506,6 +506,35 @@ input::placeholder{opacity:.9}
   .input-icon{font-size:28px}
 }
 
+/* MOBILE SIMPLE MODE
+   HP hanya menampilkan dua metode utama:
+   - Ambil dari Kamera
+   - Upload Image
+   Paste Image dan Drag & Drop tetap tersedia di desktop.
+*/
+@media(max-width:800px){
+  #pasteBox,
+  #dropBox{
+    display:none !important;
+  }
+
+  .input-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  #cameraBox,
+  #uploadBox{
+    min-height:165px;
+  }
+}
+
+@media(max-width:430px){
+  #cameraBox,
+  #uploadBox{
+    min-height:145px;
+  }
+}
+
 </style>
 
 </head>
@@ -537,11 +566,7 @@ input::placeholder{opacity:.9}
     </div>
   </div>
 
-  <div class="feature-bar">
-    <span id="compressChip" class="chip on">⚡ AUTO-COMPRESS: ON</span>
-    <span class="chip">🛡️ ANTI DOUBLE UPLOAD</span>
-    <span class="chip">☁️ CLOUD SYNC</span>\n    <span class="chip on">🖼️ OUTPUT: PNG</span>
-  </div>
+  <span id="compressChip" aria-hidden="true" style="display:none"></span>
   <div class="quick-actions">
     <button id="compressToggle" class="secondary compress-toggle active" type="button" aria-pressed="true">⚡ AUTO-COMPRESS <span class="compress-state">AKTIF</span></button>
   </div>
@@ -559,7 +584,7 @@ input::placeholder{opacity:.9}
       <div>
         <div class="input-icon">📤</div>
         <div class="input-title">UPLOAD IMAGE</div>
-        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP → PNG</div>
+        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP → PNG • AUTO-COMPRESS AKTIF</div>
       </div>
     </div>
 
@@ -603,7 +628,7 @@ input::placeholder{opacity:.9}
     <img id="previewImg" alt="Preview gambar">
   </div>
 
-  <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste. Semua hasil akhir otomatis menjadi PNG.</div>
+  <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste. Semua hasil akhir otomatis menjadi PNG. AUTO-COMPRESS AKTIF • ukuran diperkecil tanpa membuat teks sulit dibaca.</div>
 
   <div id="result" class="result">
     <label class="label">DIRECT IMAGE LINK</label>
@@ -865,20 +890,16 @@ async function sha256(file){
 }
 async function compressImage(file){
   /*
-    FORMAT FINAL WAJIB PNG
-    Semua sumber gambar (JPG/JPEG/PNG/WEBP/GIF/BMP/AVIF/TIFF,
-    kamera, clipboard, drag & drop) dinormalisasi menjadi PNG.
-
-    Jika AUTO-COMPRESS aktif:
-    - sisi terpanjang dibatasi maksimal 2560 px
-    - konversi tetap lossless ke PNG
-
-    Jika AUTO-COMPRESS nonaktif:
-    - resolusi asli dipertahankan
-    - format akhir tetap PNG
-
-    Catatan: GIF animasi akan menjadi frame yang sedang dirender
-    oleh browser (umumnya frame pertama), karena output akhirnya PNG.
+    FINAL FORMAT = PNG
+    MAX-SAFE COMPRESSION:
+    - Menggunakan PNG native dari browser agar 100% kompatibel dengan ImgBB.
+    - Resize adaptif: maksimal 1600px, turun ke 1440/1280px untuk file sangat besar.
+    - Optimasi warna 5-bit/channel (step 8) hanya saat AUTO-COMPRESS aktif.
+    - Metadata dibuang karena gambar dirender ulang ke canvas.
+    - Jika PNG hasil optimasi justru lebih besar, pilih PNG native yang lebih kecil.
+    - Transparansi dipertahankan. Gambar opaque diproses dengan canvas alpha:false
+      agar browser dapat menghasilkan PNG RGB yang lebih efisien.
+    - Tidak menggunakan encoder PNG custom / indexed yang berisiko ditolak ImgBB.
   */
   return new Promise(function(resolve,reject){
     if(!file || !file.type || file.type.indexOf("image/")!==0){
@@ -890,17 +911,13 @@ async function compressImage(file){
     var url=URL.createObjectURL(file);
     var settled=false;
 
-    function cleanup(){
-      URL.revokeObjectURL(url);
-    }
-
+    function cleanup(){URL.revokeObjectURL(url)}
     function fail(err){
       if(settled)return;
       settled=true;
       cleanup();
       reject(err instanceof Error ? err : new Error("Gambar tidak dapat dikonversi ke PNG."));
     }
-
     function done(result){
       if(settled)return;
       settled=true;
@@ -908,52 +925,194 @@ async function compressImage(file){
       resolve(result);
     }
 
-    img.onload=function(){
-      try{
-        var max=autoCompress ? 2560 : Math.max(img.naturalWidth,img.naturalHeight);
-        var largest=Math.max(img.naturalWidth,img.naturalHeight);
-        var scale=Math.min(1,max/largest);
+    function makeFile(blob,base){
+      return new File([blob],base+".png",{
+        type:"image/png",
+        lastModified:Date.now()
+      });
+    }
 
+    function canvasBlob(canvas){
+      return new Promise(function(res,rej){
+        canvas.toBlob(function(blob){
+          if(blob)res(blob);
+          else rej(new Error("Browser gagal membuat PNG."));
+        },"image/png");
+      });
+    }
+
+    function detectOpaque(ctx,w,h){
+      /*
+        Sampling alpha untuk menghindari getImageData penuh kedua kalinya.
+        Jika semua sampel opaque, canvas alpha:false aman.
+      */
+      try{
+        var sampleW=Math.min(w,320),sampleH=Math.min(h,320);
+        var sx=Math.max(1,Math.floor(w/sampleW));
+        var sy=Math.max(1,Math.floor(h/sampleH));
+        var d=ctx.getImageData(0,0,w,h).data;
+        for(var y=0;y<h;y+=sy){
+          for(var x=0;x<w;x+=sx){
+            if(d[(y*w+x)*4+3]!==255)return false;
+          }
+        }
+        return true;
+      }catch(e){
+        return false;
+      }
+    }
+
+    function quantizeCanvas(sourceCanvas,w,h,step,opaque){
+      /*
+        step=8 => 32 levels/channel.
+        Ini cukup kuat untuk mengecilkan PNG tetapi jauh lebih aman
+        untuk teks/screenshot dibanding step=16.
+      */
+      var c=document.createElement("canvas");
+      c.width=w;c.height=h;
+      var ctx=c.getContext("2d",{
+        alpha:!opaque,
+        willReadFrequently:true
+      });
+      if(!ctx)return null;
+
+      if(opaque){
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(0,0,w,h);
+      }
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality="high";
+      ctx.drawImage(sourceCanvas,0,0);
+
+      try{
+        var imageData=ctx.getImageData(0,0,w,h);
+        var p=imageData.data;
+        var half=step>>1;
+
+        for(var i=0;i<p.length;i+=4){
+          /*
+            Pembulatan ke pusat bucket.
+            Nilai dekat 0 dan 255 tetap dijaga supaya hitam/putih
+            serta teks lebih mudah dibaca.
+          */
+          p[i]   = Math.min(255,Math.max(0,Math.floor(p[i]/step)*step+half));
+          p[i+1] = Math.min(255,Math.max(0,Math.floor(p[i+1]/step)*step+half));
+          p[i+2] = Math.min(255,Math.max(0,Math.floor(p[i+2]/step)*step+half));
+          if(opaque)p[i+3]=255;
+        }
+        ctx.putImageData(imageData,0,0);
+      }catch(e){
+        return null;
+      }
+      return c;
+    }
+
+    img.onload=async function(){
+      try{
+        var largest=Math.max(img.naturalWidth,img.naturalHeight);
+
+        /*
+          Resize adaptif:
+          < 4MB  -> 1600
+          4-8MB  -> 1440
+          > 8MB  -> 1280
+          Jadi gambar kecil tidak diperkecil tanpa alasan, sedangkan
+          kamera/file besar mendapatkan kompresi lebih kuat.
+        */
+        var max=largest;
+        if(autoCompress){
+          if(file.size>8*1024*1024)max=1280;
+          else if(file.size>4*1024*1024)max=1440;
+          else max=1600;
+        }
+
+        var scale=Math.min(1,max/largest);
         var w=Math.max(1,Math.round(img.naturalWidth*scale));
         var h=Math.max(1,Math.round(img.naturalHeight*scale));
 
-        var c=document.createElement("canvas");
-        c.width=w;
-        c.height=h;
+        /*
+          Canvas pertama = PNG baseline yang selalu valid.
+        */
+        var baseCanvas=document.createElement("canvas");
+        baseCanvas.width=w;baseCanvas.height=h;
 
-        var ctx=c.getContext("2d",{alpha:true});
-        if(!ctx){
+        var probeCtx=baseCanvas.getContext("2d",{
+          alpha:true,
+          willReadFrequently:true
+        });
+        if(!probeCtx){
           fail(new Error("Browser tidak mendukung pemrosesan gambar."));
           return;
         }
 
-        /* Pastikan transparansi tetap tersedia. */
-        ctx.clearRect(0,0,w,h);
-        ctx.drawImage(img,0,0,w,h);
+        probeCtx.clearRect(0,0,w,h);
+        probeCtx.imageSmoothingEnabled=true;
+        probeCtx.imageSmoothingQuality="high";
+        probeCtx.drawImage(img,0,0,w,h);
 
-        c.toBlob(function(blob){
-          if(!blob){
-            fail(new Error("Gagal membuat file PNG."));
-            return;
+        var base=(file.name||"image")
+          .replace(/\.[^.]+$/i,"")
+          .replace(/[^a-zA-Z0-9._-]+/g,"-")
+          .replace(/-+/g,"-")
+          .replace(/^-|-$/g,"")||"image";
+
+        /*
+          AUTO-COMPRESS OFF:
+          tetap konversi ke PNG native yang sangat kompatibel.
+        */
+        if(!autoCompress){
+          var offBlob=await canvasBlob(baseCanvas);
+          done(makeFile(offBlob,base));
+          return;
+        }
+
+        var opaque=detectOpaque(probeCtx,w,h);
+
+        /*
+          Baseline native PNG.
+          Ini menjadi fallback yang aman apabila optimasi warna gagal.
+        */
+        var nativeCanvas=document.createElement("canvas");
+        nativeCanvas.width=w;nativeCanvas.height=h;
+        var nativeCtx=nativeCanvas.getContext("2d",{
+          alpha:!opaque,
+          willReadFrequently:false
+        });
+        if(!nativeCtx){
+          fail(new Error("Browser tidak mendukung pemrosesan PNG."));
+          return;
+        }
+        if(opaque){
+          nativeCtx.fillStyle="#ffffff";
+          nativeCtx.fillRect(0,0,w,h);
+        }
+        nativeCtx.imageSmoothingEnabled=true;
+        nativeCtx.imageSmoothingQuality="high";
+        nativeCtx.drawImage(img,0,0,w,h);
+        var nativeBlob=await canvasBlob(nativeCanvas);
+
+        /*
+          Kandidat MAX:
+          step 8 adalah titik kompromi kuat tetapi masih nyaman dibaca.
+          Untuk gambar sangat besar, resize adaptif di atas ikut bekerja.
+        */
+        var qCanvas=quantizeCanvas(baseCanvas,w,h,8,opaque);
+        var bestBlob=nativeBlob;
+
+        if(qCanvas){
+          try{
+            var qBlob=await canvasBlob(qCanvas);
+            /*
+              Hanya ambil kandidat jika benar-benar lebih kecil.
+              Dengan demikian optimasi tidak pernah membuat file membesar.
+            */
+            if(qBlob.size<nativeBlob.size)bestBlob=qBlob;
+          }catch(qErr){
+            console.warn("Optimasi warna dilewati:",qErr);
           }
+        }
 
-          var base=(file.name||"image")
-            .replace(/\.[^.]+$/i,"")
-            .replace(/[^a-zA-Z0-9._-]+/g,"-")
-            .replace(/-+/g,"-")
-            .replace(/^-|-$/g,"") || "image";
-
-          var pngName=base+".png";
-
-          done(new File(
-            [blob],
-            pngName,
-            {
-              type:"image/png",
-              lastModified:Date.now()
-            }
-          ));
-        },"image/png");
+        done(makeFile(bestBlob,base));
       }catch(err){
         fail(err);
       }
@@ -1218,7 +1377,9 @@ async function prepare(file){
     objectUrl=URL.createObjectURL(optimized);
     previewImg.src=objectUrl;preview.style.display="block";result.style.display="none";validationLink.textContent="";urlInput.value="";
     var before=(file.size/1024/1024).toFixed(2),after=(optimized.size/1024/1024).toFixed(2);
-    progressTarget=Math.max(progressTarget,10);setProgress(progressValue,"☁️ Gambar siap dikirim...","upload");setStatus("☁️ "+(file.name||"camera-image")+" • "+before+" MB → "+after+" MB • mengirim ke server...","");
+    progressTarget=Math.max(progressTarget,10);setProgress(progressValue,"☁️ Gambar siap dikirim...","upload");var ratio=file.size>0?Math.round((1-(optimized.size/file.size))*100):0;
+     var saving=ratio>0?(" • HEMAT "+ratio+"%"):(" • "+Math.abs(ratio)+"% lebih besar");
+     setStatus("☁️ "+(file.name||"camera-image")+" • ASLI "+before+" MB → PNG "+after+" MB"+saving+" • mengirim ke server...","");
     upload(optimized,staff,hash);
   }catch(e){console.error(e);setStatus("❌ Gagal menyiapkan gambar: "+e.message,"err")}
 }
@@ -1382,7 +1543,7 @@ compressToggle.addEventListener("click",function(){
   compressToggle.classList.toggle("active",autoCompress);
   compressToggle.setAttribute("aria-pressed",String(autoCompress));
   compressToggle.innerHTML='⚡ AUTO-COMPRESS <span class="compress-state">'+(autoCompress?"AKTIF":"NONAKTIF")+'</span>';
-  compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");
+  compressChip.textContent="⚡ AUTO-COMPRESS "+(autoCompress?"AKTIF":"NONAKTIF");
   compressChip.classList.toggle("on",autoCompress);
 });
 
