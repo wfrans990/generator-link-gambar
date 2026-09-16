@@ -67,6 +67,12 @@ input::placeholder{color:#76676a}
 .status.err{border-color:#702a32;color:#ff9da5}
 .result{display:none;margin-top:15px}
 .label{font-size:11px;color:#ad989b;margin:0 0 7px}
+.validation-box{
+  background:#090405;border:1px solid #51262c;border-radius:10px;
+  padding:12px 14px;line-height:1.55;word-break:break-all
+}
+.validation-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:6px}
+.validation-link{font-size:14px;color:#ffabb0;word-break:break-all}
 .url-row{display:flex;gap:8px}
 .url-row input{min-width:0}
 button{
@@ -207,16 +213,15 @@ button:active{transform:translateY(0)}
   <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste.</div>
 
   <div id="result" class="result">
-    <label class="label" for="urlInput">DIRECT IMAGE LINK</label>
-    <div class="url-row">
-      <input id="urlInput" type="text" readonly>
-      <button id="copyBtn" class="primary" type="button">COPY LINK</button>
+    <label class="label">DIRECT IMAGE LINK</label>
+    <div class="validation-box" id="validationBox">
+      <div class="validation-title">Hasil Validasi :</div>
+      <div class="validation-link" id="validationLink"></div>
     </div>
+    <input id="urlInput" type="hidden">
     <div class="actions">
-      <button id="openBtn" class="secondary" type="button">↗ OPEN</button>
-      <button id="htmlBtn" class="secondary" type="button">COPY HTML</button>
-      <button id="markdownBtn" class="secondary" type="button">COPY MARKDOWN</button>
-      <button id="clearBtn" class="danger" type="button">CLEAR</button>
+      <button id="copyAllBtn" class="primary" type="button">COPY</button>
+      <button id="copyLinkBtn" class="secondary" type="button">COPY LINK</button>
     </div>
   </div>
 </div>
@@ -274,7 +279,7 @@ var $=function(id){return document.getElementById(id)};
 var uploadBox=$("uploadBox"), cameraBox=$("cameraBox"), pasteBox=$("pasteBox"), dropBox=$("dropBox");
 var fileInput=$("fileInput"), cameraInput=$("cameraInput");
 var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result=$("result");
-var urlInput=$("urlInput"), apiKey=$("apiKey"), expiration=$("expiration"), staffName=$("staffName");
+var urlInput=$("urlInput"), validationLink=$("validationLink"), apiKey=$("apiKey"), expiration=$("expiration"), staffName=$("staffName");
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
 var objectUrl=null, isUploading=false;
 
@@ -461,6 +466,8 @@ function prepare(file){
   previewImg.src=objectUrl;
   preview.style.display="block";
   result.style.display="none";
+  validationLink.textContent="";
+  urlInput.value="";
 
   var size=(file.size/1024/1024).toFixed(2);
   setStatus("⏳ "+(file.name||"camera-image")+" • "+size+" MB • sedang upload sebagai "+staff+"...","");
@@ -494,6 +501,7 @@ async function upload(file,staff){
 
     var uploadedAt=new Date().toISOString();
     urlInput.value=data.data.url;
+    validationLink.textContent=data.data.url;
     result.style.display="block";
     setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah mencatat "+staff+".","ok");
 
@@ -535,22 +543,11 @@ $("showKey").addEventListener("click",function(){
 expiration.addEventListener("change",function(){
   localStorage.setItem("imgbb_expiration",expiration.value);
 });
-$("copyBtn").addEventListener("click",function(){copyText(urlInput.value)});
-$("openBtn").addEventListener("click",function(){
-  if(urlInput.value)window.open(urlInput.value,"_blank","noopener,noreferrer");
+$("copyAllBtn").addEventListener("click",function(){
+  if(!urlInput.value){setStatus("Tidak ada hasil validasi.","err");return}
+  copyText("Hasil Validasi :\n"+urlInput.value);
 });
-$("htmlBtn").addEventListener("click",function(){
-  copyText('<img src="'+urlInput.value+'" alt="image">');
-});
-$("markdownBtn").addEventListener("click",function(){
-  copyText("![]("+urlInput.value+")");
-});
-$("clearBtn").addEventListener("click",function(){
-  preview.style.display="none"; result.style.display="none";
-  previewImg.removeAttribute("src"); urlInput.value="";
-  if(objectUrl)URL.revokeObjectURL(objectUrl); objectUrl=null;
-  setStatus("Masukkan nama staff, lalu pilih gambar / kamera / paste.");
-});
+$("copyLinkBtn").addEventListener("click",function(){copyText(urlInput.value)});
 historySearch.addEventListener("input",renderHistory);
 $("clearHistoryBtn").addEventListener("click",async function(){
   if(!confirm(cloudEnabled
