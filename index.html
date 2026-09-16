@@ -1194,6 +1194,25 @@ async function upload(file,staff,hash){
       setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat cloud sudah dicatat "+staff+".","ok");
       toastMsg("✓ Upload + riwayat berhasil");
 
+      /*
+        Setelah progress benar-benar mencapai 100%, otomatis arahkan
+        tampilan ke bagian DIRECT IMAGE LINK agar staff tidak perlu scroll.
+        Ditunda 80ms supaya browser sudah selesai merender panel hasil.
+      */
+      setTimeout(function(){
+        result.scrollIntoView({
+          behavior:"smooth",
+          block:"center"
+        });
+
+        /*
+          Beri fokus keyboard ke area link tanpa memindahkan scroll lagi.
+          Ini membantu pengguna PC langsung berada di area hasil.
+        */
+        validationLink.setAttribute("tabindex","-1");
+        try{validationLink.focus({preventScroll:true})}catch(e){validationLink.focus()}
+      },80);
+
       setTimeout(function(){
         renderHistory();
       },150);
