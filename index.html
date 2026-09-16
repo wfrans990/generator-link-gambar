@@ -434,7 +434,7 @@ button:active{transform:translateY(0) scale(.99)}
       <div class="admin-actions">
         <button id="adminLoginBtn" class="secondary" type="button">LOGIN ADMIN</button>
         <button id="adminLogoutBtn" class="danger" type="button" style="display:none">LOGOUT</button>
-      </div>
+      </div></div>
     </div>
   </div>
 </div>
@@ -581,13 +581,23 @@ function normalizeHistoryRow(x){
   };
 }
 
-async function getHistory(){
-  
-window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstallPrompt=e;installBtn.style.display="block"});
-installBtn.addEventListener("click",async function(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installBtn.style.display="none"});
-if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(e){console.warn("SW",e)})});
+window.addEventListener("beforeinstallprompt",function(e){
+  e.preventDefault(); deferredInstallPrompt=e; installBtn.style.display="block";
+});
+installBtn.addEventListener("click",async function(){
+  if(!deferredInstallPrompt)return;
+  deferredInstallPrompt.prompt();
+  try{await deferredInstallPrompt.userChoice}catch(e){}
+  deferredInstallPrompt=null; installBtn.style.display="none";
+});
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(e){console.warn("SW",e)});
+  },{once:true});
+}
 
-if(cloudEnabled){
+async function getHistory(){
+  if(cloudEnabled){
     var r=await supabaseClient.from(CLOUD_TABLE)
       .select("id,staff_name,file_name,image_url,uploaded_at,file_hash")
       .order("uploaded_at",{ascending:false}).limit(500);
@@ -597,39 +607,7 @@ if(cloudEnabled){
   try{return JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){return []}
 }
 
-
-window.addEventListener("beforeinstallprompt",function(e){
-  e.preventDefault();
-  deferredInstallPrompt=e;
-  installBtn.style.display="block";
-});
-installBtn.addEventListener("click",async function(){
-  if(!deferredInstallPrompt)return;
-  deferredInstallPrompt.prompt();
-  try{await deferredInstallPrompt.userChoice}catch(e){}
-  deferredInstallPrompt=null;
-  installBtn.style.display="none";
-});
-if("serviceWorker" in navigator){
-  window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(e){console.warn("SW",e)});
-  });
-}
-
 function saveHistory(list){localStorage.setItem("image_link_history",JSON.stringify(list))}
-
-async function addCloudHistory(item){
-  if(!cloudEnabled){
-    var old=[];
-    try{old=JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){}
-    saveHistory([item].concat(old).slice(0,200));
-    return;
-  }
-  var r=await supabaseClient.from(CLOUD_TABLE).insert({
-    staff_name:item.staff,file_name:item.fileName,image_url:item.url,uploaded_at:item.uploadedAt,file_hash:item.fileHash||null
-  });
-  if(r.error) throw r.error;
-}
 
 async function renderHistory(){
   historyList.innerHTML='<div class="empty">⏳ Memuat riwayat...</div>';
@@ -817,18 +795,28 @@ function xhrUpload(file,staff,hash){
   return new Promise(function(resolve,reject){
     var xhr=new XMLHttpRequest();
     xhr.open("POST",UPLOAD_FUNCTION,true);
-    xhr.setRequestHeader("Authorization","Bearer "+(supabaseClient&&supabaseClient.auth?((supabaseClient.auth.getSession && "")||""):""));
+    // The publishable key identifies this browser app. Do not send it as Bearer JWT.
+    xhr.setRequestHeader("apikey",SUPABASE_PUBLISHABLE_KEY);
     var form=new FormData();
-    form.append("image",file,file.name||"image.webp");form.append("staff",staff);form.append("file_hash",hash);form.append("expiration",expiration.value||"0");
-    /* Supabase Edge Function needs the current access token; fetch it before opening XHR. */
-    supabaseClient.auth.getSession().then(function(sr){
-      var token=sr.data&&sr.data.session&&sr.data.session.access_token;
-      if(token)xhr.setRequestHeader("Authorization","Bearer "+token);
-      xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress(e.loaded/e.total*100,"UPLOADING IMAGE...")};
-      xhr.onload=function(){try{var d=JSON.parse(xhr.responseText||"{}");if(xhr.status>=200&&xhr.status<300&&d.url)resolve(d);else reject(new Error(d.error||"Upload gagal ("+xhr.status+")"))}catch(e){reject(e)}};
-      xhr.onerror=function(){reject(new Error("Koneksi upload gagal."))};
-      xhr.send(form);
-    }).catch(reject);
+    form.append("image",file,file.name||"image.webp");
+    form.append("staff",staff);
+    form.append("file_hash",hash);
+    form.append("expiration",expiration.value||"0");
+    xhr.upload.onprogress=function(e){if(e.lengthComputable)setProgress(e.loaded/e.total*100,"UPLOADING IMAGE...")};
+    xhr.onload=function(){
+      try{
+        var d=JSON.parse(xhr.responseText||"{}");
+        if(xhr.status>=200&&xhr.status<300&&d.url&&d.historySaved!==false)resolve(d);
+        else{
+          var err=new Error(d.error||"Upload gagal ("+xhr.status+")");
+          err.status=xhr.status; err.payload=d; reject(err);
+        }
+      }catch(e){reject(e)}
+    };
+    xhr.onerror=function(){reject(new Error("Koneksi upload gagal."))};
+    xhr.ontimeout=function(){reject(new Error("Upload timeout."))};
+    xhr.timeout=120000;
+    xhr.send(form);
   });
 }
 async function upload(file,staff,hash){
@@ -836,18 +824,10 @@ async function upload(file,staff,hash){
   setProgress(0,"UPLOADING IMAGE...");
   try{
     var data=await xhrUpload(file,staff,hash);
-    var uploadedAt=new Date().toISOString();
     urlInput.value=data.url;validationLink.textContent=data.url;result.style.display="block";
-    setProgress(100,"UPLOAD COMPLETE");setTimeout(function(){setProgress(-1)},500);
-    try{
-      await addCloudHistory({url:data.url,fileName:file.name||"camera-image",staff:staff,uploadedAt:uploadedAt,fileHash:hash});
-      setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah dicatat "+staff+".","ok");
-      toastMsg("✓ Upload berhasil");
-    }catch(historyErr){
-      console.error("History insert failed:",historyErr);
-      setStatus("✓ Gambar berhasil di-upload, tetapi riwayat cloud gagal dicatat: "+(historyErr.message||"error"),"err");
-      toastMsg("⚠️ Gambar berhasil, riwayat gagal");
-    }
+    setProgress(100,"UPLOAD + HISTORY COMPLETE");setTimeout(function(){setProgress(-1)},500);
+    setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat cloud sudah dicatat "+staff+".","ok");
+    toastMsg("✓ Upload + riwayat berhasil");
     await renderHistory();
   }catch(err){console.error(err);setProgress(-1);setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");toastMsg("❌ Upload gagal")}
   finally{isUploading=false;document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")})}
@@ -878,10 +858,8 @@ async function deleteRows(ids){
   if(!isAdmin||!ids.length){setStatus("❌ Hanya ADMIN yang boleh menghapus data.","err");return}
   if(!confirm("Hapus "+ids.length+" upload terpilih?"))return;
   try{
-    for(var i=0;i<ids.length;i++){
-      var r=await supabaseClient.from(CLOUD_TABLE).delete().eq("id",ids[i]);
-      if(r.error)throw r.error;
-    }
+    var r=await supabaseClient.from(CLOUD_TABLE).delete().in("id",ids);
+    if(r.error)throw r.error;
     selectedIds.clear();deleteMenu.classList.remove("show");await renderHistory();setStatus("✓ Data berhasil dihapus.","ok");toastMsg("✓ Data dihapus");
   }catch(e){setStatus("❌ Gagal menghapus: "+e.message,"err")}
 }
@@ -913,7 +891,6 @@ dateFilter.addEventListener("change",function(){dateRange.style.display=this.val
 dateFrom.addEventListener("change",renderHistory);dateTo.addEventListener("change",renderHistory);
 compressToggle.addEventListener("click",function(){autoCompress=!autoCompress;compressToggle.textContent="AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.textContent="⚡ AUTO-COMPRESS: "+(autoCompress?"ON":"OFF");compressChip.classList.toggle("on",autoCompress)});
 quickUploadBtn.addEventListener("click",chooseCamera);
-
 
 async function refreshAdminState(){
   if(!cloudEnabled){
