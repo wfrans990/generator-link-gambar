@@ -1,0 +1,17 @@
+{
+  "name": "TVTOTO Image Link Generator",
+  "short_name": "TVTOTO IMG",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#030205",
+  "theme_color": "#0a0406",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/wfrans990/generator-link-gambar/main/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
