@@ -540,7 +540,7 @@ input::placeholder{opacity:.9}
   <div class="feature-bar">
     <span id="compressChip" class="chip on">⚡ AUTO-COMPRESS: ON</span>
     <span class="chip">🛡️ ANTI DOUBLE UPLOAD</span>
-    <span class="chip">☁️ CLOUD SYNC</span>
+    <span class="chip">☁️ CLOUD SYNC</span>\n    <span class="chip on">🖼️ OUTPUT: PNG</span>
   </div>
   <div class="quick-actions">
     <button id="compressToggle" class="secondary compress-toggle active" type="button" aria-pressed="true">⚡ AUTO-COMPRESS <span class="compress-state">AKTIF</span></button>
@@ -559,7 +559,7 @@ input::placeholder{opacity:.9}
       <div>
         <div class="input-icon">📤</div>
         <div class="input-title">UPLOAD IMAGE</div>
-        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP</div>
+        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP → PNG</div>
       </div>
     </div>
 
@@ -603,7 +603,7 @@ input::placeholder{opacity:.9}
     <img id="previewImg" alt="Preview gambar">
   </div>
 
-  <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste.</div>
+  <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste. Semua hasil akhir otomatis menjadi PNG.</div>
 
   <div id="result" class="result">
     <label class="label">DIRECT IMAGE LINK</label>
@@ -864,27 +864,105 @@ async function sha256(file){
   return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
 }
 async function compressImage(file){
-  if(!autoCompress || /image\/(gif|avif|bmp|tiff)/i.test(file.type)) return file;
-  var SMALL_LIMIT=1024*1024;
-  if(file.size<=SMALL_LIMIT) return file;
-  return new Promise(function(resolve){
-    var img=new Image(), url=URL.createObjectURL(file), settled=false;
-    function finish(result){if(settled)return;settled=true;URL.revokeObjectURL(url);resolve(result||file)}
+  /*
+    FORMAT FINAL WAJIB PNG
+    Semua sumber gambar (JPG/JPEG/PNG/WEBP/GIF/BMP/AVIF/TIFF,
+    kamera, clipboard, drag & drop) dinormalisasi menjadi PNG.
+
+    Jika AUTO-COMPRESS aktif:
+    - sisi terpanjang dibatasi maksimal 2560 px
+    - konversi tetap lossless ke PNG
+
+    Jika AUTO-COMPRESS nonaktif:
+    - resolusi asli dipertahankan
+    - format akhir tetap PNG
+
+    Catatan: GIF animasi akan menjadi frame yang sedang dirender
+    oleh browser (umumnya frame pertama), karena output akhirnya PNG.
+  */
+  return new Promise(function(resolve,reject){
+    if(!file || !file.type || file.type.indexOf("image/")!==0){
+      reject(new Error("File bukan gambar."));
+      return;
+    }
+
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    var settled=false;
+
+    function cleanup(){
+      URL.revokeObjectURL(url);
+    }
+
+    function fail(err){
+      if(settled)return;
+      settled=true;
+      cleanup();
+      reject(err instanceof Error ? err : new Error("Gambar tidak dapat dikonversi ke PNG."));
+    }
+
+    function done(result){
+      if(settled)return;
+      settled=true;
+      cleanup();
+      resolve(result);
+    }
+
     img.onload=function(){
-      var max=2560, largest=Math.max(img.naturalWidth,img.naturalHeight);
-      var scale=Math.min(1,max/largest);
-      var w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
-      if(file.size<=2*1024*1024 && scale===1){finish(file);return}
-      var c=document.createElement("canvas");c.width=w;c.height=h;
-      var ctx=c.getContext("2d",{alpha:true});
-      if(!ctx){finish(file);return}
-      ctx.drawImage(img,0,0,w,h);
-      c.toBlob(function(blob){
-        if(!blob || blob.size>=file.size*0.96){finish(file);return}
-        finish(new File([blob],(file.name||"image").replace(/\.[^.]+$/i,"")+".webp",{type:"image/webp",lastModified:Date.now()}));
-      },"image/webp",.84);
+      try{
+        var max=autoCompress ? 2560 : Math.max(img.naturalWidth,img.naturalHeight);
+        var largest=Math.max(img.naturalWidth,img.naturalHeight);
+        var scale=Math.min(1,max/largest);
+
+        var w=Math.max(1,Math.round(img.naturalWidth*scale));
+        var h=Math.max(1,Math.round(img.naturalHeight*scale));
+
+        var c=document.createElement("canvas");
+        c.width=w;
+        c.height=h;
+
+        var ctx=c.getContext("2d",{alpha:true});
+        if(!ctx){
+          fail(new Error("Browser tidak mendukung pemrosesan gambar."));
+          return;
+        }
+
+        /* Pastikan transparansi tetap tersedia. */
+        ctx.clearRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+
+        c.toBlob(function(blob){
+          if(!blob){
+            fail(new Error("Gagal membuat file PNG."));
+            return;
+          }
+
+          var base=(file.name||"image")
+            .replace(/\.[^.]+$/i,"")
+            .replace(/[^a-zA-Z0-9._-]+/g,"-")
+            .replace(/-+/g,"-")
+            .replace(/^-|-$/g,"") || "image";
+
+          var pngName=base+".png";
+
+          done(new File(
+            [blob],
+            pngName,
+            {
+              type:"image/png",
+              lastModified:Date.now()
+            }
+          ));
+        },"image/png");
+      }catch(err){
+        fail(err);
+      }
     };
-    img.onerror=function(){finish(file)};
+
+    img.onerror=function(){
+      fail(new Error("Format gambar tidak dapat dibaca browser."));
+    };
+
     img.src=url;
   });
 }
@@ -1125,10 +1203,17 @@ async function prepare(file){
   if(!staff){setStatus("⚠️ Isi NAMA STAFF terlebih dahulu.","err");staffName.focus();return}
   try{
     progressValue=0;progressTarget=0;startSlowProgress(0,8,"🔐 Memeriksa gambar...","prepare");setStatus("🔐 Memeriksa gambar...","");
-    var hash=await sha256(file);
-    lastPreparedFile=file;lastPreparedHash=hash;
-    startSlowProgress(Math.max(progressValue,4),10,"⚡ Mengoptimalkan gambar...","prepare");setStatus("⚡ Memproses gambar...","");
+    startSlowProgress(Math.max(progressValue,4),10,"⚡ Mengonversi ke PNG...","prepare");setStatus("⚡ Menyiapkan format PNG...","");
     var optimized=await compressImage(file);
+
+    /*
+      Hash dibuat dari file FINAL PNG supaya:
+      JPG + PNG + WEBP dengan isi visual yang sama setelah normalisasi
+      dapat diperlakukan sebagai satu file final.
+    */
+    var hash=await sha256(optimized);
+    lastPreparedFile=optimized;lastPreparedHash=hash;
+
     if(objectUrl)URL.revokeObjectURL(objectUrl);
     objectUrl=URL.createObjectURL(optimized);
     previewImg.src=objectUrl;preview.style.display="block";result.style.display="none";validationLink.textContent="";urlInput.value="";
@@ -1144,7 +1229,7 @@ function xhrUpload(file,staff,hash){
     xhr.open("POST",UPLOAD_FUNCTION,true);
     xhr.setRequestHeader("apikey",SUPABASE_PUBLISHABLE_KEY);
     var form=new FormData();
-    form.append("image",file,file.name||"image.webp");
+    form.append("image",file,file.name||"image.png");
     form.append("staff",staff);
     form.append("file_hash",hash);
     form.append("expiration",expiration.value||"0");
