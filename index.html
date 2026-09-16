@@ -2,77 +2,56 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMAGE LINK GENERATOR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0406">
+<title>IMAGE LINK GENERATOR PRO</title>
 <style>
 :root{
-  --bg:#080305;--panel:#16090b;--panel2:#1d0c0f;--line:#54252c;
+  --bg:#070305;--panel:#14080b;--panel2:#1b0c10;--line:#4f252c;
   --red:#d92835;--red2:#ff5963;--text:#fff;--muted:#a99598;
-  --green:#35d88a;--gold:#d8b36a;
+  --green:#35d88a;--yellow:#ffc857;--shadow:0 18px 55px #0009
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
-  margin:0;min-height:100vh;color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+  margin:0;min-height:100vh;color:var(--text);font-family:Arial,Helvetica,sans-serif;
   background:radial-gradient(circle at 50% -10%,#55151c 0,#19080b 36%,#050204 76%);
 }
 button,input,select{font:inherit}
-.container{max-width:1200px;margin:auto;padding:28px 18px 50px}
+button{border:0}
+.container{width:min(1180px,100%);margin:auto;padding:24px 18px 50px}
 header{text-align:center;margin-bottom:22px}
-.logo{font-size:40px;font-weight:900;letter-spacing:3px}
+.logo{font-size:clamp(25px,4vw,40px);font-weight:900;letter-spacing:3px}
 .logo span{color:var(--red2)}
-.subtitle{color:var(--muted);margin:8px 0 0}
+.subtitle{color:var(--muted);margin:8px 0 0;font-size:14px}
 .card{
-  background:rgba(22,9,11,.96);border:1px solid var(--line);
-  border-radius:18px;padding:20px;box-shadow:0 20px 70px #0008
+  background:rgba(20,8,11,.96);border:1px solid var(--line);border-radius:18px;
+  padding:20px;box-shadow:var(--shadow)
 }
-.hidden{display:none!important}
-
-/* LOGIN */
-.login-wrap{max-width:500px;margin:7vh auto 0}
-.login-logo{text-align:center;font-size:42px;font-weight:900;letter-spacing:2px}
-.login-logo span{color:var(--red2)}
-.login-sub{text-align:center;color:var(--muted);margin:10px 0 25px}
-.login-title{font-size:22px;font-weight:800;margin-bottom:6px}
-.login-help{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:18px}
-.login-name{margin-bottom:16px}
-.login-btn{width:100%;margin-top:8px;padding:14px}
-.login-note{
-  margin-top:16px;padding:11px 13px;border-radius:9px;
-  border:1px solid #3a1b20;background:#0e0708;color:#8e7e81;
-  font-size:11px;line-height:1.5;text-align:center
+.main-card{position:relative}
+.staff-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:16px}
+.field-wrap{min-width:0}
+label{display:block;font-size:12px;color:#b9a6a8;margin:0 0 7px;font-weight:700}
+.required{color:var(--red2)}
+input,select{
+  background:#090405;color:#fff;border:1px solid #51262c;border-radius:10px;
+  padding:12px;width:100%;outline:none;min-height:44px
 }
-
-/* USER BAR */
-.userbar{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:12px 15px;margin-bottom:16px;border:1px solid var(--line);
-  background:rgba(22,9,11,.96);border-radius:12px
-}
-.user-info{display:flex;align-items:center;gap:10px;min-width:0}
-.avatar{
-  width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;background:linear-gradient(135deg,#8d1721,#e3424d);
-  font-weight:900
-}
-.user-text{min-width:0}
-.user-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.user-name{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-actions{display:flex;gap:7px;flex-wrap:wrap}
-
-/* GENERATOR */
-.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+input:focus,select:focus{border-color:var(--red2);box-shadow:0 0 0 3px #ff59631a}
+input::placeholder{color:#76676a}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .input-box{
-  min-height:245px;border:2px dashed #71343b;border-radius:15px;background:#100608;
-  display:flex;align-items:center;justify-content:center;text-align:center;
-  cursor:pointer;transition:.2s
+  min-height:220px;border:2px dashed #71343b;border-radius:15px;background:#100608;
+  display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;
+  transition:.2s;padding:20px
 }
-.input-box:hover,.input-box.active{
-  border-color:var(--red2);background:#22090d;transform:translateY(-2px)
-}
-.input-icon{font-size:45px;margin-bottom:8px}
-.input-title{font-size:21px;font-weight:800}
+.input-box:hover,.input-box.active{border-color:var(--red2);background:#22090d;transform:translateY(-2px)}
+.input-box.disabled{opacity:.55;pointer-events:none}
+.input-icon{font-size:42px;margin-bottom:8px}
+.input-title{font-size:20px;font-weight:800}
 .input-help{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.camera-box{border-color:#7a6330}.camera-primary{border-width:3px;box-shadow:0 0 0 1px #ffc85733,0 12px 35px #0007}.camera-primary .input-title{color:#ffd66e}
+.camera-box:hover{border-color:var(--yellow);background:#211808}
 .file-input{display:none}
 .preview{display:none;margin-top:18px}
 .preview-title{font-size:13px;font-weight:bold;margin-bottom:9px;color:#e6cdd0}
@@ -82,246 +61,96 @@ header{text-align:center;margin-bottom:22px}
 }
 .status{
   margin-top:15px;padding:12px 14px;background:#0e0708;border:1px solid #3a1b20;
-  border-radius:9px;font-size:13px;color:#ddd
+  border-radius:9px;font-size:13px;color:#ddd;line-height:1.45
 }
 .status.ok{border-color:#1c6847;color:#9ff0c7}
 .status.err{border-color:#702a32;color:#ff9da5}
 .result{display:none;margin-top:15px}
-.label{display:block;font-size:11px;color:#ad989b;margin:0 0 7px}
+.label{font-size:11px;color:#ad989b;margin:0 0 7px}
 .url-row{display:flex;gap:8px}
-.url-row input{flex:1;min-width:0}
-input,select{
-  background:#090405;color:#fff;border:1px solid #51262c;border-radius:9px;
-  padding:12px;outline:none;width:100%
-}
-input:focus,select:focus{border-color:var(--red2)}
+.url-row input{min-width:0}
 button{
-  border:0;border-radius:9px;padding:12px 16px;font-weight:800;color:#fff;cursor:pointer
+  border-radius:9px;padding:12px 16px;font-weight:800;color:#fff;cursor:pointer;
+  min-height:44px;transition:.15s
 }
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
 .primary{background:linear-gradient(135deg,#b71f2b,#ec3e49)}
 .secondary{background:#261014;border:1px solid #623039}
 .danger{background:#361015;border:1px solid #71313a}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.lower{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;margin-top:16px}
-
-/* HISTORY */
+.actions button{flex:0 1 auto}
+.lower{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;margin-top:16px}
 .history h3,.settings h3{margin-top:0}
-.history-top{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-bottom:12px
-}
-.history-count{
-  font-size:11px;color:#ffb1b6;border:1px solid #5b2930;
-  background:#261015;padding:5px 8px;border-radius:20px
-}
-.history-tools{display:flex;gap:8px;margin-bottom:12px}
-.history-tools input{flex:1}
+.history-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.history-toolbar input{flex:1}
 .history-item{
-  display:flex;gap:11px;align-items:flex-start;border-top:1px solid #32171b;
-  padding:12px 0
+  display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:10px;align-items:center;
+  border-top:1px solid #32171b;padding:12px 0
 }
-.thumb{
-  width:76px;height:58px;object-fit:cover;border-radius:7px;background:#080404;
-  border:1px solid #3b2024;flex:0 0 auto
-}
-.history-content{min-width:0;flex:1}
+.thumb{width:72px;height:54px;object-fit:cover;border-radius:7px;background:#080404}
 .history-link{
   color:#ffabb0;font-size:12px;text-decoration:none;word-break:break-all
 }
 .history-link:hover{text-decoration:underline}
-.history-file{font-size:12px;font-weight:800;color:#eee;margin-bottom:4px;word-break:break-word}
-.history-meta{font-size:11px;color:#8e7e81;margin-top:5px;line-height:1.55}
-.history-user{
-  display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:20px;
-  background:#261015;border:1px solid #5b2930;color:#ffafb4;font-size:10px;
-  font-weight:900;margin-bottom:5px
-}
-.history-size{color:#d8b36a;font-weight:800}
-.history-actions{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
-.history-actions button{padding:7px 9px;font-size:10px}
-.empty{
-  color:#8e7e81;font-size:12px;text-align:center;padding:25px 10px;
-  border:1px dashed #3a1b20;border-radius:10px
-}
-
-/* SETTINGS */
+.history-meta{font-size:11px;color:#8e7e81;margin-top:4px;line-height:1.45}
+.history-staff{font-weight:800;color:#fff}
+.history-actions{display:flex;gap:5px}
+.mini-btn{padding:8px 10px;min-height:34px;font-size:11px}
 .badge{
   display:inline-block;padding:5px 8px;border-radius:20px;background:#261015;
   border:1px solid #5b2930;color:#ffafb4;font-size:11px
 }
-label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
 .info{font-size:11px;color:#8e7e81;line-height:1.5;margin-top:15px}
-.current-user-box{
-  padding:10px;border:1px solid #3a1b20;background:#0e0708;border-radius:9px;
-  font-size:12px;color:#ddd
+.empty{text-align:center;padding:28px 10px;color:#8e7e81;font-size:12px}
+.counter{font-size:11px;color:#8e7e81;margin-left:auto}
+.loading{opacity:.7;pointer-events:none}
+.divider{height:1px;background:#32171b;margin:16px 0}
+.note{
+  margin-top:10px;padding:10px;border-radius:9px;background:#100a0b;
+  border:1px solid #342024;color:#9e8d90;font-size:11px;line-height:1.5
 }
-.current-user-box b{color:#ffb0b5}
-.danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid #32171b}
-#mobilePasteHelp{display:none}
-.mobile-actions{display:none;gap:8px;flex-wrap:wrap;margin-top:10px}
-.mobile-actions button{flex:1;min-width:140px}
-
 @media(max-width:800px){
+  .camera-primary{order:-10;min-height:210px}
+  .container{padding:16px 12px 35px}
+  .card{padding:15px;border-radius:15px}
   .input-grid,.lower{grid-template-columns:1fr}
-  .logo{font-size:32px}.login-logo{font-size:34px}
+  .staff-row{grid-template-columns:1fr}
+  .input-box{min-height:175px}
   .url-row{flex-direction:column}
-  #desktopPasteHelp{display:none}
-  #mobilePasteHelp{display:inline}
-  .mobile-actions{display:flex}
-  .input-box{min-height:190px}
-  .userbar{align-items:flex-start;flex-direction:column}
-  .user-actions{width:100%}
-  .user-actions button{flex:1}
+  .url-row button{width:100%}
+  .history-item{grid-template-columns:58px minmax(0,1fr);align-items:start}
+  .thumb{width:58px;height:48px}
+  .history-actions{grid-column:2;justify-content:flex-start}
+  .actions button{flex:1 1 calc(50% - 8px)}
+}
+@media(max-width:430px){
+  .logo{letter-spacing:1.5px}
+  .subtitle{font-size:12px}
+  .input-title{font-size:17px}
+  .input-help{font-size:12px}
+  .input-box{min-height:155px;padding:14px}
+  .input-icon{font-size:34px}
+  .actions button{flex:1 1 100%}
 }
 </style>
 </head>
 <body>
+<div class="container">
+<header>
+  <div class="logo">IMAGE<span> LINK</span> GENERATOR PRO</div>
+  <div class="subtitle">Upload, ambil foto dari kamera, dan simpan riwayat dengan nama staff + tanggal + jam.</div>
+</header>
 
-<!-- ================= LOGIN ================= -->
-<section id="loginPage" class="login-wrap">
-  <div class="login-logo">IMAGE<span> LINK</span></div>
-  <div class="login-logo" style="font-size:25px;letter-spacing:3px">GENERATOR</div>
-  <div class="login-sub">Upload gambar • Direct link • Riwayat uploader</div>
-
-  <div class="card">
-    <div class="login-title">🔐 Identitas Uploader</div>
-    <div class="login-help">
-      Silakan pilih nama Anda untuk masuk. Tidak perlu membuat akun atau melakukan pendaftaran.
-      Nama ini hanya digunakan sebagai penanda pada riwayat upload.
+<div class="card main-card">
+  <div class="staff-row">
+    <div class="field-wrap">
+      <label for="staffName">NAMA STAFF <span class="required">*</span></label>
+      <input id="staffName" type="text" maxlength="80" autocomplete="name"
+             placeholder="Contoh: FRANS WILLIAM ISKANDAR TAMBUNAN">
     </div>
-
-    <label for="loginName">Nama Uploader</label>
-    <select id="loginName" class="login-name">
-      <option value="">— Pilih nama —</option>
-      <option>FRANS</option>
-      <option>ANDI</option>
-      <option>HARIS</option>
-      <option>SASITHAREN</option>
-      <option>INDRA</option>
-      <option>ARUN</option>
-      <option>YOGI</option>
-      <option>BOBI</option>
-      <option>AHLLUN IQBAL</option>
-      <option>SANJELI</option>
-      <option>AL BETO</option>
-      <option value="LAINNYA">LAINNYA</option>
-    </select>
-
-    <input id="customName" class="hidden" type="text" maxlength="40"
-           placeholder="Masukkan nama uploader">
-
-    <button id="loginBtn" class="primary login-btn" type="button">
-      MASUK KE GENERATOR
-    </button>
-
-    <div class="login-note">
-      ℹ️ Ini bukan sistem akun. Tidak ada password dan tidak ada proses registrasi.
-    </div>
-  </div>
-</section>
-
-<!-- ================= APP ================= -->
-<div id="appPage" class="container hidden">
-  <header>
-    <div class="logo">IMAGE<span> LINK</span> GENERATOR</div>
-    <div class="subtitle">Upload gambar atau Paste Image — lalu dapatkan direct link</div>
-  </header>
-
-  <div class="userbar">
-    <div class="user-info">
-      <div id="avatar" class="avatar">?</div>
-      <div class="user-text">
-        <div class="user-label">Uploader aktif</div>
-        <div id="currentUser" class="user-name">-</div>
-      </div>
-    </div>
-    <div class="user-actions">
-      <button id="changeUserBtn" class="secondary" type="button">👤 GANTI USER</button>
-      <button id="logoutBtn" class="danger" type="button">KELUAR</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="input-grid">
-      <div id="uploadBox" class="input-box" tabindex="0">
-        <div>
-          <div class="input-icon">📤</div>
-          <div class="input-title">UPLOAD IMAGE</div>
-          <div class="input-help">Klik di sini untuk memilih gambar<br>JPG • PNG • GIF • WEBP</div>
-        </div>
-      </div>
-
-      <div id="pasteBox" class="input-box" tabindex="0">
-        <div>
-          <div class="input-icon">📋</div>
-          <div class="input-title">PASTE IMAGE HERE</div>
-          <div class="input-help">
-            <span id="desktopPasteHelp"><b>Ctrl + V</b> untuk menempel screenshot<br>Gambar dari clipboard akan diproses otomatis</span>
-            <span id="mobilePasteHelp">📱 HP: tap di sini untuk memilih gambar dari galeri</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mobile-actions">
-      <button id="galleryBtn" class="primary" type="button">🖼️ PILIH DARI GALERI</button>
-      <button id="cameraBtn" class="secondary" type="button">📷 AMBIL FOTO</button>
-    </div>
-
-    <input id="fileInput" class="file-input" type="file" accept="image/*">
-    <input id="mobileGalleryInput" class="file-input" type="file" accept="image/*">
-    <input id="cameraInput" class="file-input" type="file" accept="image/*" capture="environment">
-
-    <div id="preview" class="preview">
-      <div class="preview-title">🖼️ PREVIEW</div>
-      <img id="previewImg" alt="Preview gambar">
-    </div>
-
-    <div id="status" class="status">Pilih gambar atau tekan Ctrl + V.</div>
-
-    <div id="result" class="result">
-      <label class="label" for="urlInput">DIRECT IMAGE LINK</label>
-      <div class="url-row">
-        <input id="urlInput" type="text" readonly>
-        <button id="copyBtn" class="primary" type="button">COPY LINK</button>
-      </div>
-      <div class="actions">
-        <button id="openBtn" class="secondary" type="button">↗ OPEN</button>
-        <button id="htmlBtn" class="secondary" type="button">COPY HTML</button>
-        <button id="markdownBtn" class="secondary" type="button">COPY MARKDOWN</button>
-        <button id="clearBtn" class="danger" type="button">CLEAR</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="lower">
-    <div class="card history">
-      <div class="history-top">
-        <h3 style="margin:0">📜 Riwayat Upload</h3>
-        <div id="historyCount" class="history-count">0 upload</div>
-      </div>
-
-      <div class="history-tools">
-        <input id="historySearch" type="text" placeholder="🔎 Cari nama file / uploader...">
-        <button id="refreshHistoryBtn" class="secondary" type="button">↻</button>
-      </div>
-
-      <div id="historyList"></div>
-    </div>
-
-    <div class="card settings">
-      <h3>⚙️ Upload Settings</h3>
-      <span class="badge">ImgBB</span>
-
-      <label for="apiKey">ImgBB API Key</label>
-      <input id="apiKey" type="password" autocomplete="off" placeholder="Masukkan API key">
-
-      <div class="actions">
-        <button id="saveKey" class="primary" type="button">SIMPAN</button>
-        <button id="showKey" class="secondary" type="button">LIHAT</button>
-      </div>
-
-      <label for="expiration">Expiration</label>
+    <div class="field-wrap">
+      <label for="expiration">EXPIRATION</label>
       <select id="expiration">
         <option value="0">Tidak otomatis dihapus</option>
         <option value="600">10 menit</option>
@@ -330,22 +159,109 @@ label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
         <option value="604800">7 hari</option>
         <option value="2592000">30 hari</option>
       </select>
+    </div>
+  </div>
 
-      <label>User Aktif</label>
-      <div class="current-user-box">👤 <b id="settingsUser">-</b></div>
-
-      <div class="info">
-        Riwayat menyimpan nama uploader, nama file, ukuran file, tanggal, jam,
-        dan direct link. Riwayat browser ini tersimpan di perangkat yang digunakan.
+  <div class="input-grid">
+    <div id="cameraBox" class="input-box camera-box camera-primary" tabindex="0" role="button">
+      <div>
+        <div class="input-icon">📷</div>
+        <div class="input-title">AMBIL DARI KAMERA</div>
+        <div class="input-help">Pilihan utama untuk HP<br><b>Tekan → kamera langsung terbuka</b><br>Foto → otomatis diproses</div>
       </div>
+    </div>
 
-      <div class="danger-zone">
-        <button id="clearHistoryBtn" class="danger" style="width:100%" type="button">
-          🗑️ HAPUS SEMUA RIWAYAT DI BROWSER INI
-        </button>
+    <div id="uploadBox" class="input-box" tabindex="0" role="button">
+      <div>
+        <div class="input-icon">📤</div>
+        <div class="input-title">UPLOAD IMAGE</div>
+        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP</div>
+      </div>
+    </div>
+
+    <div id="pasteBox" class="input-box" tabindex="0" role="button">
+      <div>
+        <div class="input-icon">📋</div>
+        <div class="input-title">PASTE IMAGE</div>
+        <div class="input-help"><b>Ctrl + V</b> untuk screenshot<br>Clipboard diproses otomatis</div>
+      </div>
+    </div>
+
+    <div id="dropBox" class="input-box" tabindex="0" role="button">
+      <div>
+        <div class="input-icon">📥</div>
+        <div class="input-title">DRAG & DROP</div>
+        <div class="input-help">Tarik file gambar ke kotak ini<br>Praktis untuk PC / laptop</div>
       </div>
     </div>
   </div>
+
+  <input id="fileInput" class="file-input" type="file" accept="image/*">
+  <input id="cameraInput" class="file-input" type="file" accept="image/*" capture="environment">
+
+  <div id="preview" class="preview">
+    <div class="preview-title">🖼️ PREVIEW</div>
+    <img id="previewImg" alt="Preview gambar">
+  </div>
+
+  <div id="status" class="status">Masukkan nama staff, lalu pilih gambar / kamera / paste.</div>
+
+  <div id="result" class="result">
+    <label class="label" for="urlInput">DIRECT IMAGE LINK</label>
+    <div class="url-row">
+      <input id="urlInput" type="text" readonly>
+      <button id="copyBtn" class="primary" type="button">COPY LINK</button>
+    </div>
+    <div class="actions">
+      <button id="openBtn" class="secondary" type="button">↗ OPEN</button>
+      <button id="htmlBtn" class="secondary" type="button">COPY HTML</button>
+      <button id="markdownBtn" class="secondary" type="button">COPY MARKDOWN</button>
+      <button id="clearBtn" class="danger" type="button">CLEAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="lower">
+  <div class="card history">
+    <div class="history-toolbar">
+      <h3 style="margin:0">📜 Riwayat Upload</h3>
+      <span id="historyCount" class="counter">0 upload</span>
+    </div>
+    <div class="history-toolbar">
+      <input id="historySearch" type="search" placeholder="Cari nama staff atau nama file...">
+      <button id="clearHistoryBtn" class="danger" type="button">HAPUS RIWAYAT</button>
+    </div>
+    <div id="historyList"><div class="empty">Belum ada upload.</div></div>
+  </div>
+
+  <div class="card settings">
+    <h3>⚙️ Upload Settings</h3>
+    <span class="badge">ImgBB</span>
+
+    <label for="apiKey">ImgBB API Key</label>
+    <input id="apiKey" type="password" autocomplete="off" placeholder="API key sudah tertanam — boleh diganti">
+
+    <div class="actions">
+      <button id="saveKey" class="primary" type="button">SIMPAN</button>
+      <button id="showKey" class="secondary" type="button">LIHAT</button>
+    </div>
+
+    <div class="note">
+      API key disimpan di browser ini menggunakan localStorage. Untuk penggunaan publik/ramai,
+      backend/proxy tetap lebih aman agar API key tidak terekspos.
+    </div>
+
+    <div class="divider"></div>
+    <div class="info">
+      <b>Alur penggunaan:</b><br>
+      1. Isi nama staff.<br>
+      2. Pilih Upload, Kamera, Paste, atau Drag & Drop.<br>
+      3. Gambar langsung di-upload ke ImgBB.<br>
+      4. Link dan riwayat otomatis tersimpan di browser.<br>
+      5. Riwayat mencatat staff, file, tanggal, jam, dan link.
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -353,167 +269,121 @@ label{display:block;font-size:12px;color:#b9a6a8;margin:15px 0 7px}
 "use strict";
 
 var API="https://api.imgbb.com/1/upload";
-var HISTORY_KEY="image_link_generator_history_v2";
-var USER_KEY="image_link_generator_user";
-var $=function(id){return document.getElementById(id);};
+var $=function(id){return document.getElementById(id)};
 
-var loginPage=$("loginPage"), appPage=$("appPage");
-var loginName=$("loginName"), customName=$("customName"), loginBtn=$("loginBtn");
-var currentUserEl=$("currentUser"), settingsUser=$("settingsUser"), avatar=$("avatar");
+var uploadBox=$("uploadBox"), cameraBox=$("cameraBox"), pasteBox=$("pasteBox"), dropBox=$("dropBox");
+var fileInput=$("fileInput"), cameraInput=$("cameraInput");
+var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result=$("result");
+var urlInput=$("urlInput"), apiKey=$("apiKey"), expiration=$("expiration"), staffName=$("staffName");
+var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
+var objectUrl=null, isUploading=false;
 
-var uploadBox=$("uploadBox"), pasteBox=$("pasteBox");
-var fileInput=$("fileInput"), mobileGalleryInput=$("mobileGalleryInput"), cameraInput=$("cameraInput");
-var galleryBtn=$("galleryBtn"), cameraBtn=$("cameraBtn");
-var preview=$("preview"), previewImg=$("previewImg");
-var status=$("status"), result=$("result"), urlInput=$("urlInput");
-var apiKey=$("apiKey"), expiration=$("expiration");
-var historyList=$("historyList"), historyCount=$("historyCount"), historySearch=$("historySearch");
-var objectUrl=null;
-
-apiKey.value=localStorage.getItem("imgbb_api_key")||"";
+apiKey.value=localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3";
 expiration.value=localStorage.getItem("imgbb_expiration")||"0";
+staffName.value=localStorage.getItem("imgbb_staff_name")||"";
 
 function setStatus(text,type){
   status.className="status"+(type?" "+type:"");
   status.textContent=text;
 }
 
-function getKey(){
-  return apiKey.value.trim()||localStorage.getItem("imgbb_api_key")||"";
+function getKey(){return apiKey.value.trim()||localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3"}
+
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){return []}
 }
 
-function formatBytes(bytes){
-  if(!Number.isFinite(bytes)||bytes<0)return "0 B";
-  if(bytes<1024)return bytes+" B";
-  if(bytes<1024*1024)return (bytes/1024).toFixed(1)+" KB";
-  if(bytes<1024*1024*1024)return (bytes/1024/1024).toFixed(2)+" MB";
-  return (bytes/1024/1024/1024).toFixed(2)+" GB";
-}
+function saveHistory(list){localStorage.setItem("image_link_history",JSON.stringify(list))}
 
 function formatDateTime(iso){
   var d=new Date(iso);
-  if(isNaN(d.getTime()))return "-";
-  return d.toLocaleDateString("id-ID",{
-    day:"2-digit",month:"2-digit",year:"numeric"
-  })+" • "+d.toLocaleTimeString("id-ID",{
-    hour:"2-digit",minute:"2-digit",second:"2-digit"
+  return d.toLocaleDateString("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"})+
+    " • "+d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+
+function renderHistory(){
+  var list=getHistory(), q=historySearch.value.trim().toLowerCase();
+  var filtered=list.filter(function(x){
+    return !q || (x.staff+" "+x.fileName+" "+x.url).toLowerCase().indexOf(q)!==-1;
+  });
+  historyCount.textContent=list.length+" upload"+(list.length===1?"":"s");
+  historyList.innerHTML="";
+  if(!filtered.length){
+    historyList.innerHTML='<div class="empty">'+(list.length?"Tidak ada hasil pencarian.":"Belum ada upload.")+'</div>';
+    return;
+  }
+
+  filtered.forEach(function(item){
+    var row=document.createElement("div"); row.className="history-item";
+
+    var thumb=document.createElement("img"); thumb.className="thumb"; thumb.src=item.url;
+    thumb.alt="thumbnail"; thumb.loading="lazy";
+
+    var box=document.createElement("div");
+    var link=document.createElement("a"); link.className="history-link";
+    link.href=item.url; link.target="_blank"; link.rel="noopener noreferrer";
+    link.textContent=item.url;
+
+    var meta=document.createElement("div"); meta.className="history-meta";
+    meta.innerHTML='<span class="history-staff"></span> • '+escapeHtml(item.fileName||"image")+
+      '<br>📅 '+formatDateTime(item.uploadedAt);
+    meta.querySelector(".history-staff").textContent="👤 "+(item.staff||"Tanpa nama");
+
+    box.appendChild(link); box.appendChild(meta);
+
+    var acts=document.createElement("div"); acts.className="history-actions";
+    var copy=document.createElement("button"); copy.className="secondary mini-btn"; copy.textContent="COPY";
+    copy.type="button"; copy.onclick=function(){copyText(item.url)};
+    var open=document.createElement("button"); open.className="secondary mini-btn"; open.textContent="OPEN";
+    open.type="button"; open.onclick=function(){window.open(item.url,"_blank","noopener,noreferrer")};
+    acts.appendChild(copy); acts.appendChild(open);
+
+    row.appendChild(thumb); row.appendChild(box); row.appendChild(acts);
+    historyList.appendChild(row);
   });
 }
 
-function getHistory(){
-  try{
-    var raw=localStorage.getItem(HISTORY_KEY);
-    var data=raw?JSON.parse(raw):[];
-    return Array.isArray(data)?data:[];
-  }catch(e){return [];}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
 }
 
-function saveHistory(data){
-  localStorage.setItem(HISTORY_KEY,JSON.stringify(data));
-}
+function chooseFile(){if(!isUploading)fileInput.click()}
+function chooseCamera(){if(!isUploading)cameraInput.click()}
 
-function initials(name){
-  var p=(name||"?").trim().split(/\s+/);
-  if(p.length===1)return p[0].slice(0,2).toUpperCase();
-  return (p[0][0]+p[p.length-1][0]).toUpperCase();
-}
-
-function loginAs(name){
-  name=(name||"").trim();
-  if(!name){
-    alert("Silakan pilih nama uploader terlebih dahulu.");
-    return;
-  }
-  localStorage.setItem(USER_KEY,name);
-  showApp(name);
-}
-
-function showApp(name){
-  currentUserEl.textContent=name;
-  settingsUser.textContent=name;
-  avatar.textContent=initials(name);
-  loginPage.classList.add("hidden");
-  appPage.classList.remove("hidden");
-  renderHistory();
-}
-
-function showLogin(){
-  appPage.classList.add("hidden");
-  loginPage.classList.remove("hidden");
-  loginName.value="";
-  customName.value="";
-  customName.classList.add("hidden");
-}
-
-loginName.addEventListener("change",function(){
-  if(loginName.value==="LAINNYA"){
-    customName.classList.remove("hidden");
-    customName.focus();
-  }else{
-    customName.classList.add("hidden");
-    customName.value="";
-  }
-});
-
-loginBtn.addEventListener("click",function(){
-  var name=loginName.value==="LAINNYA"?customName.value:loginName.value;
-  loginAs(name);
-});
-
-customName.addEventListener("keydown",function(e){
-  if(e.key==="Enter")loginBtn.click();
-});
-
-$("changeUserBtn").addEventListener("click",showLogin);
-$("logoutBtn").addEventListener("click",function(){
-  localStorage.removeItem(USER_KEY);
-  resetGenerator();
-  showLogin();
-});
-
-function chooseFile(){fileInput.click();}
 uploadBox.addEventListener("click",chooseFile);
-uploadBox.addEventListener("keydown",function(e){
-  if(e.key==="Enter"||e.key===" ")chooseFile();
-});
-
-function isMobileDevice(){
-  return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-}
-function openGallery(){mobileGalleryInput.click();}
-function openCamera(){cameraInput.click();}
+uploadBox.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")chooseFile()});
+cameraBox.addEventListener("click",chooseCamera);
+cameraBox.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")chooseCamera()});
 
 pasteBox.addEventListener("click",function(){
-  if(isMobileDevice()){
-    setStatus("🖼️ Silakan pilih gambar dari galeri.");
-    openGallery();
-  }else{
-    setStatus("📋 Klik kotak ini lalu tekan Ctrl + V.");
-  }
+  setStatus("📋 Sekarang tekan Ctrl + V untuk menempelkan gambar.","");
+  document.body.focus();
 });
 pasteBox.addEventListener("keydown",function(e){
-  if(e.key==="Enter"||e.key===" "){
-    e.preventDefault();
-    if(isMobileDevice()){
-      setStatus("🖼️ Silakan pilih gambar dari galeri.");
-      openGallery();
-    }else{
-      setStatus("📋 Sekarang tekan Ctrl + V.");
-    }
-  }
+  if(e.key==="Enter"||e.key===" ")setStatus("📋 Sekarang tekan Ctrl + V.","");
 });
 
-galleryBtn.addEventListener("click",openGallery);
-cameraBtn.addEventListener("click",openCamera);
+dropBox.addEventListener("dragover",function(e){
+  e.preventDefault(); dropBox.classList.add("active");
+});
+dropBox.addEventListener("dragleave",function(e){
+  e.preventDefault(); dropBox.classList.remove("active");
+});
+dropBox.addEventListener("drop",function(e){
+  e.preventDefault(); dropBox.classList.remove("active");
+  var files=e.dataTransfer&&e.dataTransfer.files;
+  if(files&&files[0])prepare(files[0]);
+});
 
-mobileGalleryInput.addEventListener("change",function(){
-  if(mobileGalleryInput.files&&mobileGalleryInput.files[0])prepare(mobileGalleryInput.files[0]);
+fileInput.addEventListener("change",function(){
+  if(fileInput.files&&fileInput.files[0])prepare(fileInput.files[0]);
+  fileInput.value="";
 });
 cameraInput.addEventListener("change",function(){
   if(cameraInput.files&&cameraInput.files[0])prepare(cameraInput.files[0]);
-});
-fileInput.addEventListener("change",function(){
-  if(fileInput.files&&fileInput.files[0])prepare(fileInput.files[0]);
+  cameraInput.value="";
 });
 
 document.addEventListener("paste",function(e){
@@ -521,34 +391,28 @@ document.addEventListener("paste",function(e){
   if(!items)return;
   for(var i=0;i<items.length;i++){
     if(items[i].type&&items[i].type.indexOf("image/")===0){
-      e.preventDefault();
-      prepare(items[i].getAsFile());
-      return;
+      e.preventDefault(); prepare(items[i].getAsFile()); return;
     }
   }
 });
 
-["dragenter","dragover"].forEach(function(name){
-  uploadBox.addEventListener(name,function(e){
-    e.preventDefault();uploadBox.classList.add("active");
-  });
-});
-["dragleave","drop"].forEach(function(name){
-  uploadBox.addEventListener(name,function(e){
-    e.preventDefault();uploadBox.classList.remove("active");
-  });
-});
-uploadBox.addEventListener("drop",function(e){
-  var files=e.dataTransfer&&e.dataTransfer.files;
-  if(files&&files[0])prepare(files[0]);
+staffName.addEventListener("input",function(){
+  localStorage.setItem("imgbb_staff_name",staffName.value);
 });
 
 function prepare(file){
+  if(isUploading)return;
   if(!file||!file.type||file.type.indexOf("image/")!==0){
-    setStatus("❌ File bukan gambar.","err");return;
+    setStatus("❌ File bukan gambar.","err"); return;
   }
   if(file.size>32*1024*1024){
-    setStatus("❌ Ukuran gambar lebih dari 32 MB.","err");return;
+    setStatus("❌ Ukuran gambar lebih dari 32 MB.","err"); return;
+  }
+
+  var staff=staffName.value.trim();
+  if(!staff){
+    setStatus("⚠️ Isi NAMA STAFF terlebih dahulu agar riwayat mencatat siapa yang upload.","err");
+    staffName.focus(); return;
   }
 
   if(objectUrl)URL.revokeObjectURL(objectUrl);
@@ -557,27 +421,22 @@ function prepare(file){
   preview.style.display="block";
   result.style.display="none";
 
-  setStatus("⏳ "+(file.name||"clipboard-image")+" • "+formatBytes(file.size)+" • sedang upload...");
-  upload(file);
+  var size=(file.size/1024/1024).toFixed(2);
+  setStatus("⏳ "+(file.name||"camera-image")+" • "+size+" MB • sedang upload sebagai "+staff+"...","");
+  upload(file,staff);
 }
 
-async function upload(file){
+async function upload(file,staff){
   var key=getKey();
   if(!key){
-    setStatus("⚠️ Masukkan ImgBB API Key terlebih dahulu.","err");
-    return;
+    setStatus("⚠️ Masukkan ImgBB API Key terlebih dahulu.","err"); return;
   }
 
-  var uploader=localStorage.getItem(USER_KEY);
-  if(!uploader){
-    setStatus("⚠️ Silakan login sebagai uploader terlebih dahulu.","err");
-    showLogin();
-    return;
-  }
+  isUploading=true;
+  document.querySelectorAll(".input-box").forEach(function(x){x.classList.add("disabled")});
 
   var form=new FormData();
   form.append("image",file);
-
   var exp=Number(expiration.value||0);
   var endpoint=API+"?key="+encodeURIComponent(key);
   if(exp>0)endpoint+="&expiration="+exp;
@@ -592,164 +451,43 @@ async function upload(file){
       throw new Error(msg);
     }
 
+    var uploadedAt=new Date().toISOString();
     urlInput.value=data.data.url;
     result.style.display="block";
-    setStatus("✓ Upload berhasil. Direct link siap digunakan.","ok");
+    setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah mencatat "+staff+".","ok");
 
-    addHistory({
-      id:String(Date.now())+"_"+Math.random().toString(36).slice(2,8),
+    var list=getHistory();
+    list.unshift({
+      id:Date.now().toString(36)+Math.random().toString(36).slice(2),
       url:data.data.url,
-      displayUrl:data.data.display_url||data.data.url,
-      fileName:file.name||"clipboard-image",
-      fileSize:file.size,
-      fileType:file.type||"image",
-      uploader:uploader,
-      uploadedAt:new Date().toISOString(),
-      deleteUrl:data.data.delete_url||""
+      fileName:file.name||"camera-image",
+      staff:staff,
+      uploadedAt:uploadedAt
     });
+    saveHistory(list.slice(0,200));
+    renderHistory();
   }catch(err){
     console.error(err);
-    setStatus("❌ "+err.message,"err");
+    setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");
+  }finally{
+    isUploading=false;
+    document.querySelectorAll(".input-box").forEach(function(x){x.classList.remove("disabled")});
   }
 }
 
 async function copyText(text){
-  if(!text){setStatus("Tidak ada link.","err");return;}
+  if(!text){setStatus("Tidak ada link.","err");return}
   try{
     await navigator.clipboard.writeText(text);
   }catch(e){
-    urlInput.focus();urlInput.select();document.execCommand("copy");
+    urlInput.focus(); urlInput.select(); document.execCommand("copy");
   }
   setStatus("✓ Berhasil disalin.","ok");
 }
 
-function addHistory(item){
-  var data=getHistory();
-  data.unshift(item);
-  /* Simpan maksimal 300 riwayat di browser */
-  if(data.length>300)data=data.slice(0,300);
-  saveHistory(data);
-  renderHistory();
-}
-
-function renderHistory(){
-  var all=getHistory();
-  var q=(historySearch.value||"").trim().toLowerCase();
-
-  var data=all.filter(function(item){
-    return !q ||
-      String(item.fileName||"").toLowerCase().indexOf(q)!==-1 ||
-      String(item.uploader||"").toLowerCase().indexOf(q)!==-1 ||
-      String(item.fileSize||"").toLowerCase().indexOf(q)!==-1;
-  });
-
-  historyCount.textContent=all.length+" upload"+(all.length===1?"":"s");
-
-  if(!data.length){
-    historyList.innerHTML='<div class="empty">'+
-      (all.length?'🔎 Tidak ada riwayat yang cocok.':'📭 Belum ada upload.')+
-      '</div>';
-    return;
-  }
-
-  historyList.innerHTML="";
-  data.forEach(function(item){
-    var row=document.createElement("div");
-    row.className="history-item";
-
-    var thumb=document.createElement("img");
-    thumb.className="thumb";
-    thumb.src=item.url;
-    thumb.alt="thumbnail";
-    thumb.loading="lazy";
-    thumb.onerror=function(){this.style.opacity=".35";};
-
-    var box=document.createElement("div");
-    box.className="history-content";
-
-    var user=document.createElement("div");
-    user.className="history-user";
-    user.textContent="👤 "+(item.uploader||"UNKNOWN");
-
-    var file=document.createElement("div");
-    file.className="history-file";
-    file.textContent="📄 "+(item.fileName||"image");
-
-    var meta=document.createElement("div");
-    meta.className="history-meta";
-    meta.innerHTML=
-      "📅 "+formatDateTime(item.uploadedAt)+
-      " &nbsp;•&nbsp; <span class=\"history-size\">📦 "+formatBytes(Number(item.fileSize)||0)+"</span>";
-
-    var link=document.createElement("a");
-    link.className="history-link";
-    link.href=item.url;
-    link.target="_blank";
-    link.rel="noopener noreferrer";
-    link.textContent=item.url;
-
-    var actions=document.createElement("div");
-    actions.className="history-actions";
-
-    var open=document.createElement("button");
-    open.className="secondary";
-    open.type="button";
-    open.textContent="↗ OPEN";
-    open.onclick=function(){window.open(item.url,"_blank","noopener,noreferrer");};
-
-    var copy=document.createElement("button");
-    copy.className="secondary";
-    copy.type="button";
-    copy.textContent="COPY LINK";
-    copy.onclick=function(){copyText(item.url);};
-
-    var remove=document.createElement("button");
-    remove.className="danger";
-    remove.type="button";
-    remove.textContent="HAPUS";
-    remove.onclick=function(){
-      if(!confirm("Hapus riwayat upload ini?"))return;
-      var latest=getHistory().filter(function(x){return x.id!==item.id;});
-      saveHistory(latest);
-      renderHistory();
-    };
-
-    actions.appendChild(open);
-    actions.appendChild(copy);
-    actions.appendChild(remove);
-
-    box.appendChild(user);
-    box.appendChild(file);
-    box.appendChild(meta);
-    box.appendChild(link);
-    box.appendChild(actions);
-
-    row.appendChild(thumb);
-    row.appendChild(box);
-    historyList.appendChild(row);
-  });
-}
-
-historySearch.addEventListener("input",renderHistory);
-$("refreshHistoryBtn").addEventListener("click",renderHistory);
-
-$("clearHistoryBtn").addEventListener("click",function(){
-  if(!getHistory().length){
-    alert("Belum ada riwayat.");
-    return;
-  }
-  if(confirm("Yakin ingin menghapus SEMUA riwayat upload yang tersimpan di browser ini?")){
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-    setStatus("✓ Semua riwayat di browser ini telah dihapus.","ok");
-  }
-});
-
 $("saveKey").addEventListener("click",function(){
   var key=apiKey.value.trim();
-  if(!key){
-    setStatus("Masukkan API Key terlebih dahulu.","err");return;
-  }
+  if(!key){setStatus("Masukkan API Key terlebih dahulu.","err");return}
   localStorage.setItem("imgbb_api_key",key);
   localStorage.setItem("imgbb_expiration",expiration.value);
   setStatus("✓ Pengaturan tersimpan.","ok");
@@ -760,8 +498,7 @@ $("showKey").addEventListener("click",function(){
 expiration.addEventListener("change",function(){
   localStorage.setItem("imgbb_expiration",expiration.value);
 });
-
-$("copyBtn").addEventListener("click",function(){copyText(urlInput.value);});
+$("copyBtn").addEventListener("click",function(){copyText(urlInput.value)});
 $("openBtn").addEventListener("click",function(){
   if(urlInput.value)window.open(urlInput.value,"_blank","noopener,noreferrer");
 });
@@ -771,32 +508,24 @@ $("htmlBtn").addEventListener("click",function(){
 $("markdownBtn").addEventListener("click",function(){
   copyText("![]("+urlInput.value+")");
 });
-$("clearBtn").addEventListener("click",resetGenerator);
-
-function resetGenerator(){
-  preview.style.display="none";
-  result.style.display="none";
-  previewImg.removeAttribute("src");
-  urlInput.value="";
-  fileInput.value="";
-  mobileGalleryInput.value="";
-  cameraInput.value="";
-  if(objectUrl)URL.revokeObjectURL(objectUrl);
-  objectUrl=null;
-  setStatus("Pilih gambar atau tekan Ctrl + V.");
-}
-
-window.addEventListener("storage",function(e){
-  if(e.key===HISTORY_KEY)renderHistory();
+$("clearBtn").addEventListener("click",function(){
+  preview.style.display="none"; result.style.display="none";
+  previewImg.removeAttribute("src"); urlInput.value="";
+  if(objectUrl)URL.revokeObjectURL(objectUrl); objectUrl=null;
+  setStatus("Masukkan nama staff, lalu pilih gambar / kamera / paste.");
+});
+historySearch.addEventListener("input",renderHistory);
+$("clearHistoryBtn").addEventListener("click",function(){
+  var list=getHistory();
+  if(!list.length){setStatus("Riwayat sudah kosong.","");return}
+  if(confirm("Hapus semua riwayat upload dari browser ini?")){
+    localStorage.removeItem("image_link_history");
+    renderHistory();
+    setStatus("✓ Semua riwayat lokal telah dihapus.","ok");
+  }
 });
 
-var savedUser=localStorage.getItem(USER_KEY);
-if(savedUser){
-  showApp(savedUser);
-}else{
-  showLogin();
-}
-
+renderHistory();
 })();
 </script>
 </body>
