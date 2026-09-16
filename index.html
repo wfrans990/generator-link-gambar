@@ -236,7 +236,7 @@ button:active{transform:translateY(0)}
 
   <div class="card settings">
     <h3>⚙️ Upload Settings</h3>
-    <span class="badge">ImgBB</span>
+    <span class="badge">ImgBB</span> <span class="badge" style="color:#9ff0c7;border-color:#1c6847">☁️ CLOUD HISTORY</span>
 
     <label for="apiKey">ImgBB API Key</label>
     <input id="apiKey" type="password" autocomplete="off" placeholder="API key sudah tertanam — boleh diganti">
@@ -247,8 +247,7 @@ button:active{transform:translateY(0)}
     </div>
 
     <div class="note">
-      API key disimpan di browser ini menggunakan localStorage. Untuk penggunaan publik/ramai,
-      backend/proxy tetap lebih aman agar API key tidak terekspos.
+      ImgBB API key dipakai untuk upload gambar. Supabase menyimpan metadata riwayat. Jangan pernah menaruh service_role key Supabase di HTML.
     </div>
 
     <div class="divider"></div>
@@ -257,13 +256,14 @@ button:active{transform:translateY(0)}
       1. Isi nama staff.<br>
       2. Pilih Upload, Kamera, Paste, atau Drag & Drop.<br>
       3. Gambar langsung di-upload ke ImgBB.<br>
-      4. Link dan riwayat otomatis tersimpan di browser.<br>
+      4. Link dan riwayat otomatis tersimpan di cloud jika Supabase aktif.<br>
       5. Riwayat mencatat staff, file, tanggal, jam, dan link.
     </div>
   </div>
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
 "use strict";
@@ -278,6 +278,13 @@ var urlInput=$("urlInput"), apiKey=$("apiKey"), expiration=$("expiration"), staf
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
 var objectUrl=null, isUploading=false;
 
+/* SUPABASE CLOUD HISTORY CONFIG */
+var SUPABASE_URL="https://yccppelfuigthwhwonjl.supabase.co";
+var SUPABASE_PUBLISHABLE_KEY="sb_publishable_r_r4KmqgQ56zuz8lAadYLw_sduDjku_";
+var CLOUD_TABLE="image_upload_history";
+var cloudEnabled=!!(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+var supabaseClient=cloudEnabled ? window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY) : null;
+
 apiKey.value=localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3";
 expiration.value=localStorage.getItem("imgbb_expiration")||"0";
 staffName.value=localStorage.getItem("imgbb_staff_name")||"";
@@ -289,58 +296,92 @@ function setStatus(text,type){
 
 function getKey(){return apiKey.value.trim()||localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3"}
 
-function getHistory(){
-  try{return JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){return []}
-}
-
-function saveHistory(list){localStorage.setItem("image_link_history",JSON.stringify(list))}
-
 function formatDateTime(iso){
   var d=new Date(iso);
   return d.toLocaleDateString("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"})+
     " • "+d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
 
-function renderHistory(){
-  var list=getHistory(), q=historySearch.value.trim().toLowerCase();
-  var filtered=list.filter(function(x){
-    return !q || (x.staff+" "+x.fileName+" "+x.url).toLowerCase().indexOf(q)!==-1;
-  });
-  historyCount.textContent=list.length+" upload"+(list.length===1?"":"s");
-  historyList.innerHTML="";
-  if(!filtered.length){
-    historyList.innerHTML='<div class="empty">'+(list.length?"Tidak ada hasil pencarian.":"Belum ada upload.")+'</div>';
+function normalizeHistoryRow(x){
+  return {
+    id:x.id,
+    url:x.image_url||x.url||"",
+    fileName:x.file_name||x.fileName||"image",
+    staff:x.staff_name||x.staff||"Tanpa nama",
+    uploadedAt:x.uploaded_at||x.uploadedAt||new Date().toISOString()
+  };
+}
+
+async function getHistory(){
+  if(cloudEnabled){
+    var r=await supabaseClient.from(CLOUD_TABLE)
+      .select("id,staff_name,file_name,image_url,uploaded_at")
+      .order("uploaded_at",{ascending:false}).limit(500);
+    if(r.error) throw r.error;
+    return (r.data||[]).map(normalizeHistoryRow);
+  }
+  try{return JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){return []}
+}
+
+function saveHistory(list){localStorage.setItem("image_link_history",JSON.stringify(list))}
+
+async function addCloudHistory(item){
+  if(!cloudEnabled){
+    var old=[];
+    try{old=JSON.parse(localStorage.getItem("image_link_history")||"[]")}catch(e){}
+    saveHistory([item].concat(old).slice(0,200));
     return;
   }
-
-  filtered.forEach(function(item){
-    var row=document.createElement("div"); row.className="history-item";
-
-    var thumb=document.createElement("img"); thumb.className="thumb"; thumb.src=item.url;
-    thumb.alt="thumbnail"; thumb.loading="lazy";
-
-    var box=document.createElement("div");
-    var link=document.createElement("a"); link.className="history-link";
-    link.href=item.url; link.target="_blank"; link.rel="noopener noreferrer";
-    link.textContent=item.url;
-
-    var meta=document.createElement("div"); meta.className="history-meta";
-    meta.innerHTML='<span class="history-staff"></span> • '+escapeHtml(item.fileName||"image")+
-      '<br>📅 '+formatDateTime(item.uploadedAt);
-    meta.querySelector(".history-staff").textContent="👤 "+(item.staff||"Tanpa nama");
-
-    box.appendChild(link); box.appendChild(meta);
-
-    var acts=document.createElement("div"); acts.className="history-actions";
-    var copy=document.createElement("button"); copy.className="secondary mini-btn"; copy.textContent="COPY";
-    copy.type="button"; copy.onclick=function(){copyText(item.url)};
-    var open=document.createElement("button"); open.className="secondary mini-btn"; open.textContent="OPEN";
-    open.type="button"; open.onclick=function(){window.open(item.url,"_blank","noopener,noreferrer")};
-    acts.appendChild(copy); acts.appendChild(open);
-
-    row.appendChild(thumb); row.appendChild(box); row.appendChild(acts);
-    historyList.appendChild(row);
+  var r=await supabaseClient.from(CLOUD_TABLE).insert({
+    staff_name:item.staff,file_name:item.fileName,image_url:item.url,uploaded_at:item.uploadedAt
   });
+  if(r.error) throw r.error;
+}
+
+async function renderHistory(){
+  historyList.innerHTML='<div class="empty">⏳ Memuat riwayat...</div>';
+  try{
+    var list=await getHistory(), q=historySearch.value.trim().toLowerCase();
+    var filtered=list.filter(function(x){
+      return !q || (x.staff+" "+x.fileName+" "+x.url).toLowerCase().indexOf(q)!==-1;
+    });
+    historyCount.textContent=list.length+" upload"+(list.length===1?"":"s");
+    historyList.innerHTML="";
+    if(!filtered.length){
+      historyList.innerHTML='<div class="empty">'+(list.length?"Tidak ada hasil pencarian.":"Belum ada upload.")+'</div>';
+      return;
+    }
+    filtered.forEach(function(item){
+      var row=document.createElement("div"); row.className="history-item";
+      var thumb=document.createElement("img"); thumb.className="thumb"; thumb.src=item.url;
+      thumb.alt="thumbnail"; thumb.loading="lazy";
+
+      var box=document.createElement("div");
+      var link=document.createElement("a"); link.className="history-link";
+      link.href=item.url; link.target="_blank"; link.rel="noopener noreferrer";
+      link.textContent=item.url;
+
+      var meta=document.createElement("div"); meta.className="history-meta";
+      meta.innerHTML='<span class="history-staff"></span> • '+escapeHtml(item.fileName||"image")+
+        '<br>📅 '+formatDateTime(item.uploadedAt);
+      meta.querySelector(".history-staff").textContent="👤 "+(item.staff||"Tanpa nama");
+      box.appendChild(link); box.appendChild(meta);
+
+      var acts=document.createElement("div"); acts.className="history-actions";
+      var copy=document.createElement("button"); copy.className="secondary mini-btn"; copy.textContent="COPY";
+      copy.type="button"; copy.onclick=function(){copyText(item.url)};
+      var open=document.createElement("button"); open.className="secondary mini-btn"; open.textContent="OPEN";
+      open.type="button"; open.onclick=function(){window.open(item.url,"_blank","noopener,noreferrer")};
+      acts.appendChild(copy); acts.appendChild(open);
+
+      row.appendChild(thumb); row.appendChild(box); row.appendChild(acts);
+      historyList.appendChild(row);
+    });
+  }catch(err){
+    console.error(err);
+    historyList.innerHTML='<div class="empty">⚠️ Gagal memuat riwayat cloud.<br>'+escapeHtml(err.message||"Periksa konfigurasi Supabase.")+'</div>';
+    historyCount.textContent="error";
+  }
 }
 
 function escapeHtml(s){
@@ -456,16 +497,12 @@ async function upload(file,staff){
     result.style.display="block";
     setStatus("✓ Upload berhasil. Link siap digunakan dan riwayat sudah mencatat "+staff+".","ok");
 
-    var list=getHistory();
-    list.unshift({
+    var historyItem={
       id:Date.now().toString(36)+Math.random().toString(36).slice(2),
-      url:data.data.url,
-      fileName:file.name||"camera-image",
-      staff:staff,
-      uploadedAt:uploadedAt
-    });
-    saveHistory(list.slice(0,200));
-    renderHistory();
+      url:data.data.url,fileName:file.name||"camera-image",staff:staff,uploadedAt:uploadedAt
+    };
+    await addCloudHistory(historyItem);
+    await renderHistory();
   }catch(err){
     console.error(err);
     setStatus("❌ "+(err.message||"Upload gagal. Coba lagi."),"err");
@@ -515,16 +552,28 @@ $("clearBtn").addEventListener("click",function(){
   setStatus("Masukkan nama staff, lalu pilih gambar / kamera / paste.");
 });
 historySearch.addEventListener("input",renderHistory);
-$("clearHistoryBtn").addEventListener("click",function(){
-  var list=getHistory();
-  if(!list.length){setStatus("Riwayat sudah kosong.","");return}
-  if(confirm("Hapus semua riwayat upload dari browser ini?")){
-    localStorage.removeItem("image_link_history");
-    renderHistory();
-    setStatus("✓ Semua riwayat lokal telah dihapus.","ok");
-  }
+$("clearHistoryBtn").addEventListener("click",async function(){
+  if(!confirm(cloudEnabled
+    ?"Hapus SEMUA riwayat cloud untuk semua perangkat?"
+    :"Hapus semua riwayat upload dari browser ini?")) return;
+  try{
+    if(cloudEnabled){
+      var r=await supabaseClient.from(CLOUD_TABLE).delete().gte("uploaded_at","1900-01-01T00:00:00.000Z");
+      if(r.error) throw r.error;
+    }else{
+      localStorage.removeItem("image_link_history");
+    }
+    await renderHistory();
+    setStatus("✓ Riwayat berhasil dihapus.","ok");
+  }catch(err){setStatus("❌ Gagal menghapus riwayat: "+err.message,"err")}
 });
 
+if(cloudEnabled){
+  setStatus("☁️ Mode cloud aktif. Riwayat akan sama di HP dan PC.","ok");
+  supabaseClient.channel("image-history-live")
+    .on("postgres_changes",{event:"*",schema:"public",table:CLOUD_TABLE},function(){renderHistory()})
+    .subscribe();
+}
 renderHistory();
 })();
 </script>
