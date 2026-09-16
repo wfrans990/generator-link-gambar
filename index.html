@@ -148,12 +148,26 @@ button:active{transform:translateY(0)}
   .input-icon{font-size:34px}
   .actions button{flex:1 1 100%}
 }
+
+.brand-logo{
+  display:block;
+  width:min(360px,72vw);
+  max-height:125px;
+  object-fit:contain;
+  margin:0 auto 14px;
+  filter:drop-shadow(0 8px 18px #0009);
+}
+@media(max-width:430px){
+  .brand-logo{width:min(300px,82vw);max-height:100px;margin-bottom:10px}
+}
+
 </style>
 </head>
 <body>
 <div class="container">
 <header>
-  <div class="logo">IMAGE<span> LINK</span> GENERATOR PRO</div>
+  <img class="brand-logo" src="https://raw.githubusercontent.com/wfrans990/generator-link-gambar/main/logo.png" alt="TVTOTO">
+  <div class="logo">IMAGE<span> LINK</span>GENERATOR TVTOTO</div>
   <div class="subtitle">Upload, ambil foto dari kamera, dan simpan riwayat dengan nama staff + tanggal + jam.</div>
 </header>
 
@@ -249,21 +263,6 @@ button:active{transform:translateY(0)}
   </div>
 
   <div class="card settings">
-    <h3>⚙️ Upload Settings</h3>
-    <span class="badge">ImgBB</span> <span class="badge" style="color:#9ff0c7;border-color:#1c6847">☁️ CLOUD HISTORY</span>
-
-    <label for="apiKey">ImgBB API Key</label>
-    <input id="apiKey" type="password" autocomplete="off" placeholder="API key sudah tertanam — boleh diganti">
-
-    <div class="actions">
-      <button id="saveKey" class="primary" type="button">SIMPAN</button>
-      <button id="showKey" class="secondary" type="button">LIHAT</button>
-    </div>
-
-    <div class="note">
-      ImgBB API key dipakai untuk upload gambar. Supabase menyimpan metadata riwayat. Jangan pernah menaruh service_role key Supabase di HTML.
-    </div>
-
     <div class="admin-panel">
       <b style="font-size:12px">🔐 ADMIN</b>
       <div class="admin-status" id="adminStatus">Hapus riwayat hanya tersedia untuk akun admin.</div>
@@ -271,17 +270,6 @@ button:active{transform:translateY(0)}
         <button id="adminLoginBtn" class="secondary" type="button">LOGIN ADMIN</button>
         <button id="adminLogoutBtn" class="danger" type="button" style="display:none">LOGOUT</button>
       </div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="info">
-      <b>Alur penggunaan:</b><br>
-      1. Isi nama staff.<br>
-      2. Pilih Upload, Kamera, Paste, atau Drag & Drop.<br>
-      3. Gambar langsung di-upload ke ImgBB.<br>
-      4. Link dan riwayat otomatis tersimpan di cloud jika Supabase aktif.<br>
-      5. Riwayat mencatat staff, file, tanggal, jam, dan link.<br>
-      6. HAPUS RIWAYAT hanya dapat digunakan oleh akun ADMIN.
     </div>
   </div>
 </div>
@@ -298,7 +286,7 @@ var $=function(id){return document.getElementById(id)};
 var uploadBox=$("uploadBox"), cameraBox=$("cameraBox"), pasteBox=$("pasteBox"), dropBox=$("dropBox");
 var fileInput=$("fileInput"), cameraInput=$("cameraInput");
 var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result=$("result");
-var urlInput=$("urlInput"), validationLink=$("validationLink"), apiKey=$("apiKey"), expiration=$("expiration"), staffName=$("staffName");
+var urlInput=$("urlInput"), validationLink=$("validationLink"), expiration=$("expiration"), staffName=$("staffName");
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
 var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn");
 var isAdmin=false, objectUrl=null, isUploading=false;
@@ -310,7 +298,6 @@ var CLOUD_TABLE="image_upload_history";
 var cloudEnabled=!!(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 var supabaseClient=cloudEnabled ? window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY) : null;
 
-apiKey.value=localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3";
 expiration.value=localStorage.getItem("imgbb_expiration")||"0";
 staffName.value=localStorage.getItem("imgbb_staff_name")||"";
 
@@ -319,7 +306,7 @@ function setStatus(text,type){
   status.textContent=text;
 }
 
-function getKey(){return apiKey.value.trim()||localStorage.getItem("imgbb_api_key")||"637e93ff5911a76a88ac780dbb9f12e3"}
+function getKey(){return "637e93ff5911a76a88ac780dbb9f12e3"}
 
 function formatDateTime(iso){
   var d=new Date(iso);
@@ -550,16 +537,6 @@ async function copyText(text){
   setStatus("✓ Berhasil disalin.","ok");
 }
 
-$("saveKey").addEventListener("click",function(){
-  var key=apiKey.value.trim();
-  if(!key){setStatus("Masukkan API Key terlebih dahulu.","err");return}
-  localStorage.setItem("imgbb_api_key",key);
-  localStorage.setItem("imgbb_expiration",expiration.value);
-  setStatus("✓ Pengaturan tersimpan.","ok");
-});
-$("showKey").addEventListener("click",function(){
-  apiKey.type=apiKey.type==="password"?"text":"password";
-});
 expiration.addEventListener("change",function(){
   localStorage.setItem("imgbb_expiration",expiration.value);
 });
