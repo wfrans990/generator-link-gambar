@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link
   rel="manifest"
-  href="./manifest.webmanifest?v=2026.09.16.02"
+  href="./manifest.webmanifest?v=2026.09.16.03"
 >
 <title>GENERATOR LINK GAMBAR VALIDASI</title>
 
@@ -348,10 +348,22 @@ input::placeholder{opacity:.9}
   color:#35e69a;
   font-weight:900;
 }
-.compress-toggle:not(.active) .compress-state{
-  color:#ffadb4;
-  font-weight:800;
+.compress-toggle:not(.active){
+  border-color:rgba(255,65,78,.55);
+  color:#ffd8dc;
+  background:rgba(55,9,16,.55);
+  box-shadow:0 0 0 1px rgba(255,65,78,.05),0 0 18px rgba(255,40,55,.07);
 }
+.compress-toggle:not(.active) .compress-state{
+  color:#ff7f8a;
+  font-weight:900;
+}
+.upload-compress-state{
+  font-weight:900;
+  white-space:nowrap;
+}
+.upload-compress-state.active{color:#35e69a;}
+.upload-compress-state.inactive{color:#ff7f8a;}
 .feature-bar{
   gap:6px;
   margin:9px 0;
@@ -576,7 +588,7 @@ input::placeholder{opacity:.9}
       <div>
         <div class="input-icon">📤</div>
         <div class="input-title">UPLOAD IMAGE</div>
-        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP → PNG • AUTO-COMPRESS AKTIF</div>
+        <div class="input-help">Pilih gambar dari HP / PC<br>JPG • PNG • GIF • WEBP → PNG • <span id="uploadCompressState" class="upload-compress-state active">AUTO-COMPRESS AKTIF</span></div>
       </div>
     </div>
 
@@ -1184,7 +1196,7 @@ installBtn.addEventListener("click",async function(){
   try{await deferredInstallPrompt.userChoice}catch(e){}
   deferredInstallPrompt=null; installBtn.style.display="none";
 });
-const APP_VERSION = "2026.09.16.02";
+const APP_VERSION = "2026.09.16.03";
 
 if ("serviceWorker" in navigator) {
 
@@ -1576,14 +1588,27 @@ historySearch.addEventListener("input",renderHistory);
 staffFilter.addEventListener("change",renderHistory);fileFilter.addEventListener("change",renderHistory);
 dateFilter.addEventListener("change",function(){dateRange.style.display=this.value==="custom"?"grid":"none";renderHistory()});
 dateFrom.addEventListener("change",renderHistory);dateTo.addEventListener("change",renderHistory);
-compressToggle.addEventListener("click",function(){
-  autoCompress=!autoCompress;
+function updateCompressUI(){
+  var state=autoCompress?"AKTIF":"NONAKTIF";
   compressToggle.classList.toggle("active",autoCompress);
   compressToggle.setAttribute("aria-pressed",String(autoCompress));
-  compressToggle.innerHTML='⚡ AUTO-COMPRESS <span class="compress-state">'+(autoCompress?"AKTIF":"NONAKTIF")+'</span>';
-  compressChip.textContent="⚡ AUTO-COMPRESS "+(autoCompress?"AKTIF":"NONAKTIF");
+  compressToggle.innerHTML='⚡ AUTO-COMPRESS <span class="compress-state">'+state+'</span>';
+  compressChip.textContent="⚡ AUTO-COMPRESS "+state;
   compressChip.classList.toggle("on",autoCompress);
+
+  var uploadState=$("uploadCompressState");
+  if(uploadState){
+    uploadState.textContent="AUTO-COMPRESS "+state;
+    uploadState.classList.toggle("active",autoCompress);
+    uploadState.classList.toggle("inactive",!autoCompress);
+  }
+}
+
+compressToggle.addEventListener("click",function(){
+  autoCompress=!autoCompress;
+  updateCompressUI();
 });
+updateCompressUI();
 
 async function refreshAdminState(){
   if(!cloudEnabled){
