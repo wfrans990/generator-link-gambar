@@ -116,6 +116,15 @@ button:active{transform:translateY(0)}
   margin-top:10px;padding:10px;border-radius:9px;background:#100a0b;
   border:1px solid #342024;color:#9e8d90;font-size:11px;line-height:1.5
 }
+.admin-panel{
+  margin-top:12px;padding:12px;border-radius:10px;background:#0b0507;
+  border:1px solid #432027
+}
+.admin-status{font-size:11px;color:#9e8d90;margin-top:7px;line-height:1.45}
+.admin-status.ok{color:#9ff0c7}
+.admin-status.err{color:#ff9da5}
+.admin-actions{display:flex;gap:8px;margin-top:8px}
+.admin-actions button{flex:1}
 @media(max-width:800px){
   .camera-primary{order:-10;min-height:210px}
   .container{padding:16px 12px 35px}
@@ -255,6 +264,15 @@ button:active{transform:translateY(0)}
       ImgBB API key dipakai untuk upload gambar. Supabase menyimpan metadata riwayat. Jangan pernah menaruh service_role key Supabase di HTML.
     </div>
 
+    <div class="admin-panel">
+      <b style="font-size:12px">🔐 ADMIN</b>
+      <div class="admin-status" id="adminStatus">Hapus riwayat hanya tersedia untuk akun admin.</div>
+      <div class="admin-actions">
+        <button id="adminLoginBtn" class="secondary" type="button">LOGIN ADMIN</button>
+        <button id="adminLogoutBtn" class="danger" type="button" style="display:none">LOGOUT</button>
+      </div>
+    </div>
+
     <div class="divider"></div>
     <div class="info">
       <b>Alur penggunaan:</b><br>
@@ -262,7 +280,8 @@ button:active{transform:translateY(0)}
       2. Pilih Upload, Kamera, Paste, atau Drag & Drop.<br>
       3. Gambar langsung di-upload ke ImgBB.<br>
       4. Link dan riwayat otomatis tersimpan di cloud jika Supabase aktif.<br>
-      5. Riwayat mencatat staff, file, tanggal, jam, dan link.
+      5. Riwayat mencatat staff, file, tanggal, jam, dan link.<br>
+      6. HAPUS RIWAYAT hanya dapat digunakan oleh akun ADMIN.
     </div>
   </div>
 </div>
@@ -281,7 +300,8 @@ var fileInput=$("fileInput"), cameraInput=$("cameraInput");
 var preview=$("preview"), previewImg=$("previewImg"), status=$("status"), result=$("result");
 var urlInput=$("urlInput"), validationLink=$("validationLink"), apiKey=$("apiKey"), expiration=$("expiration"), staffName=$("staffName");
 var historyList=$("historyList"), historySearch=$("historySearch"), historyCount=$("historyCount");
-var objectUrl=null, isUploading=false;
+var adminStatus=$("adminStatus"), adminLoginBtn=$("adminLoginBtn"), adminLogoutBtn=$("adminLogoutBtn");
+var isAdmin=false, objectUrl=null, isUploading=false;
 
 /* SUPABASE CLOUD HISTORY CONFIG */
 var SUPABASE_URL="https://yccppelfuigthwhwonjl.supabase.co";
@@ -549,24 +569,117 @@ $("copyAllBtn").addEventListener("click",function(){
 });
 $("copyLinkBtn").addEventListener("click",function(){copyText(urlInput.value)});
 historySearch.addEventListener("input",renderHistory);
-$("clearHistoryBtn").addEventListener("click",async function(){
-  if(!confirm(cloudEnabled
-    ?"Hapus SEMUA riwayat cloud untuk semua perangkat?"
-    :"Hapus semua riwayat upload dari browser ini?")) return;
+
+async function refreshAdminState(){
+  if(!cloudEnabled){
+    isAdmin=false;
+    adminStatus.textContent="Mode cloud tidak aktif.";
+    adminLoginBtn.style.display="none";
+    adminLogoutBtn.style.display="none";
+    $("clearHistoryBtn").style.display="none";
+    return;
+  }
   try{
-    if(cloudEnabled){
-      var r=await supabaseClient.from(CLOUD_TABLE).delete().gte("uploaded_at","1900-01-01T00:00:00.000Z");
-      if(r.error) throw r.error;
-    }else{
-      localStorage.removeItem("image_link_history");
+    var sessionResult=await supabaseClient.auth.getSession();
+    var session=sessionResult.data&&sessionResult.data.session;
+    if(!session){
+      isAdmin=false;
+      adminStatus.className="admin-status";
+      adminStatus.textContent="Hapus riwayat hanya tersedia untuk akun admin.";
+      adminLoginBtn.style.display="";
+      adminLogoutBtn.style.display="none";
+      $("clearHistoryBtn").style.display="none";
+      return;
     }
+
+    var check=await supabaseClient.rpc("is_image_history_admin");
+
+    if(check.error) throw check.error;
+
+    isAdmin=check.data===true;
+    if(isAdmin){
+      adminStatus.className="admin-status ok";
+      adminStatus.textContent="✓ Login sebagai ADMIN. Fitur hapus riwayat aktif.";
+      adminLoginBtn.style.display="none";
+      adminLogoutBtn.style.display="";
+      $("clearHistoryBtn").style.display="";
+    }else{
+      adminStatus.className="admin-status err";
+      adminStatus.textContent="Akun login bukan admin.";
+      adminLoginBtn.style.display="none";
+      adminLogoutBtn.style.display="";
+      $("clearHistoryBtn").style.display="none";
+    }
+  }catch(err){
+    console.error(err);
+    isAdmin=false;
+    adminStatus.className="admin-status err";
+    adminStatus.textContent="Gagal memeriksa status admin: "+(err.message||"error");
+    adminLoginBtn.style.display="";
+    adminLogoutBtn.style.display="none";
+    $("clearHistoryBtn").style.display="none";
+  }
+}
+
+adminLoginBtn.addEventListener("click",async function(){
+  if(!cloudEnabled){setStatus("Cloud belum aktif.","err");return}
+  var email=prompt("Email ADMIN Supabase:");
+  if(!email)return;
+  var password=prompt("Password ADMIN Supabase:");
+  if(!password)return;
+
+  adminLoginBtn.disabled=true;
+  try{
+    var r=await supabaseClient.auth.signInWithPassword({
+      email:email.trim(),password:password
+    });
+    if(r.error)throw r.error;
+    await refreshAdminState();
+    if(isAdmin)setStatus("✓ Login admin berhasil.","ok");
+    else setStatus("⚠️ Login berhasil, tetapi akun ini belum terdaftar sebagai admin.","err");
+  }catch(err){
+    setStatus("❌ Login admin gagal: "+(err.message||"Periksa email/password."),"err");
+  }finally{
+    adminLoginBtn.disabled=false;
+  }
+});
+
+adminLogoutBtn.addEventListener("click",async function(){
+  try{
+    var r=await supabaseClient.auth.signOut();
+    if(r.error)throw r.error;
+    await refreshAdminState();
+    setStatus("✓ Admin sudah logout.","ok");
+  }catch(err){
+    setStatus("❌ Logout gagal: "+(err.message||"error"),"err");
+  }
+});
+
+supabaseClient && supabaseClient.auth.onAuthStateChange(function(){
+  setTimeout(refreshAdminState,0);
+});
+
+$("clearHistoryBtn").addEventListener("click",async function(){
+  if(!isAdmin){
+    setStatus("❌ Hanya ADMIN yang boleh menghapus semua riwayat.","err");
+    return;
+  }
+  if(!confirm("Hapus SEMUA riwayat cloud untuk SEMUA perangkat?\n\nTindakan ini hanya dapat dilakukan admin.")) return;
+  try{
+    var r=await supabaseClient.from(CLOUD_TABLE)
+      .delete()
+      .gte("uploaded_at","1900-01-01T00:00:00.000Z");
+    if(r.error) throw r.error;
     await renderHistory();
-    setStatus("✓ Riwayat berhasil dihapus.","ok");
-  }catch(err){setStatus("❌ Gagal menghapus riwayat: "+err.message,"err")}
+    setStatus("✓ Semua riwayat cloud berhasil dihapus.","ok");
+  }catch(err){
+    setStatus("❌ Gagal menghapus riwayat: "+(err.message||"Periksa izin Supabase."),"err");
+  }
 });
 
 if(cloudEnabled){
   setStatus("☁️ Mode cloud aktif. Riwayat akan sama di HP dan PC.","ok");
+  refreshAdminState();
   supabaseClient.channel("image-history-live")
     .on("postgres_changes",{event:"*",schema:"public",table:CLOUD_TABLE},function(){renderHistory()})
     .subscribe();
