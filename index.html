@@ -7,7 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="./manifest.webmanifest">
+<link
+  rel="manifest"
+  href="./manifest.webmanifest?v=2026.09.16.01"
+>
 <title>GENERATOR LINK GAMBAR VALIDASI</title>
 
 <style>
@@ -1167,8 +1170,49 @@ installBtn.addEventListener("click",async function(){
 });
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(e){console.warn("SW",e)});
-  },{once:true});
+    const APP_VERSION = "2026.09.16.01";
+
+if ("serviceWorker" in navigator) {
+
+  navigator.serviceWorker.addEventListener(
+    "controllerchange",
+    function () {
+
+      if (window.__swReloaded) return;
+
+      window.__swReloaded = true;
+
+      window.location.reload();
+
+    }
+  );
+
+
+  window.addEventListener("load", async function () {
+
+    try {
+
+      const registration =
+        await navigator.serviceWorker.register(
+          "./sw.js?v=" +
+          encodeURIComponent(APP_VERSION),
+          {
+            updateViaCache: "none"
+          }
+        );
+
+      await registration.update();
+
+    } catch (e) {
+
+      console.warn("SW", e);
+
+    }
+
+  }, {
+    once: true
+  });
+
 }
 
 async function getHistory(){
